@@ -120,47 +120,40 @@ function measureNameWidth(rows) {
   return Math.min(Math.max(Math.ceil(maxW)+22,80),260);
 }
 
-window.addEventListener('DOMContentLoaded',async()=>{
-  $('main-view').style.cssText='display:flex;flex-direction:column;flex:1;overflow:hidden;';
+window.addEventListener('DOMContentLoaded', async () => {
+  $('main-view').style.cssText = 'display:flex;flex-direction:column;flex:1;overflow:hidden;';
   updateHideBtn();
 
   const hasCached = loadCache();
-  if(hasCached) {
-    render();
-  } else {
-    showLoader('Connecting…');
-  }
+  if (hasCached) render();
+  else showLoader('Connecting…');
 
   let loggedIn = false;
-  try {
-    const res = await apiFetch('/api/me');
-    loggedIn = res.loggedIn;
-  } catch { loggedIn = false; }
+  try { loggedIn = (await apiFetch('/api/me')).loggedIn; } catch {}
 
   S.loggedIn = loggedIn;
   hideLoader();
 
-  if(loggedIn) {
-    $('btn-auth').style.display='none';
-    $('btn-out').style.display='inline-flex';
-    $('conn-dot').className='dot ok';
-    $('landing').style.display='none';
+  if (loggedIn) {
+    $('btn-auth').style.display = 'none';
+    $('btn-out').style.display  = 'inline-flex';
+    $('conn-dot').className = 'dot ok';
+    $('landing').style.display  = 'none';
     setWriteEnabled(true);
-    if(!hasCached) await fetchData();
+    if (!hasCached) await fetchData();
   } else {
     setWriteEnabled(false);
-    $('btn-auth').style.display='inline-flex';
-    $('conn-dot').className='dot err';
-    $('landing').style.display='flex';
-    $('main-view').style.display='none';
-    if(hasCached) {
-      $('landing').style.display='none';
-      $('main-view').style.cssText='display:flex;flex-direction:column;flex:1;overflow:hidden;';
+    $('btn-auth').style.display = 'inline-flex';
+    $('conn-dot').className = 'dot err';
+    if (hasCached) {
+      $('landing').style.display = 'none';
+    } else {
+      $('main-view').style.display = 'none';
+      $('landing').style.display   = 'flex';
     }
     const p = new URLSearchParams(location.search);
-    if(p.has('auth_error')) {
-      const code = p.get('auth_error');
-      toast(code === 'unauthorized' ? 'Access denied.' : 'Sign in failed. Try again.', 'err');
+    if (p.has('auth_error')) {
+      toast('Sign in failed. Try again.', 'err');
       history.replaceState(null, '', '/');
     }
   }
