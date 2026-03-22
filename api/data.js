@@ -1,4 +1,5 @@
 const { google } = require('googleapis');
+const { getSession } = require('../lib/session');
 const { getClient } = require('../lib/sheets');
 
 const SHEET_ID  = process.env.GOOGLE_SHEET_ID;
@@ -8,7 +9,8 @@ const MAX_COLS  = 4;
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).end();
 
-  const auth = await getClient(req, res);
+  getSession(req);
+  const auth = getClient(req, res);
   if (!auth) return res.status(401).json({ error: 'Unauthorized' });
 
   try {
@@ -47,6 +49,7 @@ module.exports = async function handler(req, res) {
     res.json({ title: meta.data.properties.title, sheetName: sheet.properties.title, headers, rows });
   } catch (e) {
     console.error('data error:', e.message);
-    res.status(500).json({ error: e.message });
+    const status = e.code === 401 ? 401 : 500;
+    res.status(status).json({ error: e.message });
   }
 };

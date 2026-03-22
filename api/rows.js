@@ -1,11 +1,13 @@
 const { google } = require('googleapis');
+const { getSession } = require('../lib/session');
 const { getClient } = require('../lib/sheets');
 
 const SHEET_ID = process.env.GOOGLE_SHEET_ID;
 const GID      = 1723849469;
 
 module.exports = async function handler(req, res) {
-  const auth = await getClient(req, res);
+  getSession(req);
+  const auth = getClient(req, res);
   if (!auth) return res.status(401).json({ error: 'Unauthorized' });
 
   const sheets = google.sheets({ version: 'v4', auth });
