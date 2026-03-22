@@ -29,12 +29,14 @@
   --sans:   'Outfit', sans-serif;
 
   /* category accent colors */
-  --cat-available:   #b39ddb;  /* pastel purple */
-  --cat-general:     #7ecece;  /* pastel teal-blue */
-  --cat-unavailable: #ef9a9a;  /* pastel red */
+  --cat-available:   #b39ddb;
+  --cat-general:     #7ecece;
+  --cat-unavailable: #ef9a9a;
+  --cat-other:       #888888;
   --cat-available-d:   rgba(179,157,219,.1);
   --cat-general-d:     rgba(126,206,206,.1);
   --cat-unavailable-d: rgba(239,154,154,.1);
+  --cat-other-d:       rgba(136,136,136,.07);
 }
 html, body { height: 100%; font-family: var(--mono); font-size: 14px; color: var(--g1); background: var(--black); -webkit-font-smoothing: antialiased; }
 ::-webkit-scrollbar { width: 4px; height: 4px; }
@@ -143,10 +145,13 @@ html, body { height: 100%; font-family: var(--mono); font-size: 14px; color: var
 }
 .card-name {
   font-family:var(--sans); font-size:15px; font-weight:600; color:var(--white);
-  cursor:pointer; white-space:pre-wrap; word-break:break-word; flex:1;
-  line-height:1.4;
+  white-space:pre-wrap; word-break:break-word; flex:1; line-height:1.4;
+  /* not copyable — cursor default */
 }
-.card-name:hover { color:var(--teal); }
+.cat-dot-inline {
+  display:inline-block; width:8px; height:8px; border-radius:50%;
+  margin-right:8px; vertical-align:middle; position:relative; top:-1px; flex-shrink:0;
+}
 .card-acts { display:flex; gap:5px; flex-shrink:0; padding-top:2px; }
 
 /* Three cols below name */
@@ -240,6 +245,7 @@ table { display:none !important; }
 .cat-btn.active-available   { border-color:var(--cat-available);   color:var(--cat-available);   background:var(--cat-available-d); }
 .cat-btn.active-general     { border-color:var(--cat-general);     color:var(--cat-general);     background:var(--cat-general-d); }
 .cat-btn.active-unavailable { border-color:var(--cat-unavailable); color:var(--cat-unavailable); background:var(--cat-unavailable-d); }
+.cat-btn.active-other       { border-color:var(--cat-other);       color:var(--cat-other);       background:var(--cat-other-d); }
 
 /* ── TOASTS ── */
 #toasts { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:6px; z-index:300; pointer-events:none; }
@@ -345,10 +351,12 @@ const MAX_COLS   = 4; // only show first 4 columns
 
 /* ── CATEGORY DEFINITIONS ── */
 const CAT = {
-  Available:   { label: 'Available',   color: '#b39ddb', rgb: [147, 112, 219] }, // medium purple
-  General:     { label: 'General',     color: '#7ecece', rgb: [100, 181, 246] }, // light blue
-  Unavailable: { label: 'Unavailable', color: '#ef9a9a', rgb: [229, 115, 115] }, // red
+  Available:   { label: 'Available',   color: '#b39ddb', rgb: [147, 112, 219] },
+  General:     { label: 'General',     color: '#7ecece', rgb: [100, 181, 246] },
+  Unavailable: { label: 'Unavailable', color: '#ef9a9a', rgb: [229, 115, 115] },
+  Other:       { label: 'Other',       color: '#888888', rgb: [120, 120, 120] },
 };
+const CAT_ORDER = ['Available', 'General', 'Unavailable', 'Other'];
 
 /* ── STORAGE KEYS ── */
 const KEY_TOKEN  = 'ks_token';
@@ -356,14 +364,13 @@ const KEY_EXPIRY = 'ks_expiry';
 
 /* ── STATE ── */
 let S = {
-  headers:    [],
-  rows:       [],
-  sheetName:  '',
-  sortCol:    -1,
-  sortAsc:    true,
-  editRow:    null,
-  delRow:     null,
-  editCat:    'General',
+  headers:     [],
+  rows:        [],
+  sheetName:   '',
+  editRow:     null,
+  delRow:      null,
+  editCat:     'General',
+  openGroups:  new Set(), // persists across re-renders
   tokenClient: null,
   gapiReady:   false,
   gisReady:    false,
@@ -491,11 +498,12 @@ function onAuthed() {
 async function loadData() {
   showLoader('Loading…');
   try {
-    // Use includeGridData to read cell background colors
+    const sheetName = S.sheetName || await resolveSheetName();
     const meta = await gapi.client.sheets.spreadsheets.get({
       spreadsheetId: SHEET_ID,
       includeGridData: true,
-      ranges: [`'${await getSheetName()}'!A:D`], // only first 4 columns
+      ranges: [`'${sheetName}'!A:D`],
+      fields: 'properties.title,sheets(properties,data(rowData(values(formattedValue,effectiveFormat(backgroundColor,textFormat(foregroundColor,foregroundColorStyle))))))',
     });
 
     const sheetObj = meta.result.sheets.find(s => s.properties.sheetId === TARGET_GID)
@@ -505,24 +513,19 @@ async function loadData() {
       `${meta.result.properties.title} / ${S.sheetName}`;
 
     const allRows = sheetObj.data?.[0]?.rowData || [];
-    if (!allRows.length) { S.headers = []; S.rows = []; filterAndRender(); hideLoader(); return; }
+    if (!allRows.length) { S.headers = []; S.rows = []; filterAndRender(); return; }
 
-    // Row 0 = headers
     S.headers = (allRows[0].values || []).slice(0, MAX_COLS).map(c => c.formattedValue || '');
 
-    // Data rows
     S.rows = [];
     for (let ri = 1; ri < allRows.length; ri++) {
-      const rd     = allRows[ri];
-      if (!rd) continue;
-      const cells  = rd.values || [];
+      const cells  = allRows[ri]?.values || [];
       const values = S.headers.map((_, ci) => cells[ci]?.formattedValue || '');
-      // Skip completely empty rows
       if (values.every(v => !v.trim())) continue;
-      const hex    = extractBgHex(cells[0]);
-      const fgHex  = extractFgHex(cells[0]);
-      const cat    = detectCategory(hex);
-      S.rows.push({ values, hex, fgHex, cat, sheetRow: ri + 1 }); // sheetRow = 1-based
+      const hex   = extractBgHex(cells[0]);
+      const fgHex = extractFgHex(cells[0]);
+      const cat   = detectCategory(hex);
+      S.rows.push({ values, hex, fgHex, cat, sheetRow: ri + 1 });
     }
 
     filterAndRender();
@@ -530,55 +533,62 @@ async function loadData() {
   } catch(e) {
     console.error(e);
     toast('Error: ' + (e.result?.error?.message || e.message || e), 'err');
-    if (e.status === 401) { clearToken(); gapi.client.setToken(null); document.getElementById('btn-auth').style.display = 'inline-flex'; document.getElementById('btn-out').style.display = 'none'; document.getElementById('conn-dot').className = 'err'; }
+    if (e.status === 401) {
+      clearToken(); gapi.client.setToken(null);
+      document.getElementById('btn-auth').style.display = 'inline-flex';
+      document.getElementById('btn-out').style.display  = 'none';
+      document.getElementById('conn-dot').className = 'err';
+    }
   } finally { hideLoader(); }
 }
 
-// Helper — get sheet name from TARGET_GID without fetching grid data
-async function getSheetName() {
-  if (S.sheetName) return S.sheetName;
-  const m = await gapi.client.sheets.spreadsheets.get({ spreadsheetId: SHEET_ID });
+async function resolveSheetName() {
+  const m  = await gapi.client.sheets.spreadsheets.get({ spreadsheetId: SHEET_ID, fields: 'sheets.properties' });
   const sh = m.result.sheets.find(s => s.properties.sheetId === TARGET_GID) || m.result.sheets[0];
   return sh.properties.title;
 }
 
-/* ── COLOR DETECTION ── */
+/* ── COLOR HELPERS ── */
+function rgbToHex(c) {
+  const r = Math.round((c.red   || 0) * 255);
+  const g = Math.round((c.green || 0) * 255);
+  const b = Math.round((c.blue  || 0) * 255);
+  return [r, g, b];
+}
+
 function extractBgHex(cell) {
-  const bg = cell?.effectiveFormat?.backgroundColor || cell?.userEnteredFormat?.backgroundColor;
+  const fmt = cell?.effectiveFormat || cell?.userEnteredFormat;
+  const bg  = fmt?.backgroundColor;
   if (!bg) return null;
-  const r = Math.round((bg.red   || 0) * 255);
-  const g = Math.round((bg.green || 0) * 255);
-  const b = Math.round((bg.blue  || 0) * 255);
+  const [r, g, b] = rgbToHex(bg);
   if (r > 245 && g > 245 && b > 245) return null; // white = no fill
   return '#' + [r,g,b].map(v => v.toString(16).padStart(2,'0')).join('');
 }
 
 function extractFgHex(cell) {
-  const fg = cell?.effectiveFormat?.textFormat?.foregroundColor
-          || cell?.userEnteredFormat?.textFormat?.foregroundColor;
+  const fmt = cell?.effectiveFormat || cell?.userEnteredFormat;
+  // Sheets returns foregroundColorStyle.rgbColor (newer) or foregroundColor (older)
+  const fg  = fmt?.textFormat?.foregroundColorStyle?.rgbColor
+           || fmt?.textFormat?.foregroundColor;
   if (!fg) return null;
-  const r = Math.round((fg.red   || 0) * 255);
-  const g = Math.round((fg.green || 0) * 255);
-  const b = Math.round((fg.blue  || 0) * 255);
-  // black text = default, skip
-  if (r < 10 && g < 10 && b < 10) return null;
+  const [r, g, b] = rgbToHex(fg);
+  if (r < 15 && g < 15 && b < 15) return null; // near-black = default, skip
+  if (r > 240 && g > 240 && b > 240) return null; // near-white, skip
   return '#' + [r,g,b].map(v => v.toString(16).padStart(2,'0')).join('');
 }
 
 function hexToHsl(hex) {
-  if (!hex) return [0, 0, 100];
   let r = parseInt(hex.slice(1,3),16)/255;
   let g = parseInt(hex.slice(3,5),16)/255;
   let b = parseInt(hex.slice(5,7),16)/255;
-  const max = Math.max(r,g,b), min = Math.min(r,g,b);
-  let h=0, s=0, l=(max+min)/2;
-  if (max !== min) {
-    const d = max - min;
-    s = l > 0.5 ? d/(2-max-min) : d/(max+min);
+  const max = Math.max(r,g,b), min = Math.min(r,g,b), d = max - min;
+  let h = 0, s = 0, l = (max + min) / 2;
+  if (d) {
+    s = d / (l > 0.5 ? 2 - max - min : max + min);
     switch(max) {
-      case r: h = ((g-b)/d + (g<b?6:0))/6; break;
-      case g: h = ((b-r)/d + 2)/6; break;
-      case b: h = ((r-g)/d + 4)/6; break;
+      case r: h = ((g-b)/d + (g<b?6:0)) / 6; break;
+      case g: h = ((b-r)/d + 2) / 6; break;
+      case b: h = ((r-g)/d + 4) / 6; break;
     }
   }
   return [h*360, s*100, l*100];
@@ -587,11 +597,11 @@ function hexToHsl(hex) {
 function detectCategory(hex) {
   if (!hex) return 'General';
   const [h, s] = hexToHsl(hex);
-  if (s < 10) return 'General';                    // grey/unsaturated
-  if (h < 20 || h >= 340) return 'Unavailable';   // reds
-  if (h >= 250 && h < 340) return 'Available';    // purples (250-340)
-  if (h >= 180 && h < 250) return 'General';      // blues/cyans
-  return 'General';
+  if (s < 10) return 'General';
+  if (h < 20  || h >= 340) return 'Unavailable'; // reds
+  if (h >= 250 && h < 340) return 'Available';   // purples
+  if (h >= 170 && h < 250) return 'General';     // blues/cyans
+  return 'Other';                                  // everything else
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -599,99 +609,102 @@ function detectCategory(hex) {
    ═══════════════════════════════════════════════════════════ */
 function filterAndRender() {
   const q = document.getElementById('search').value.toLowerCase();
-  let rows = q
-    ? S.rows.filter(r => r.values.some(v => v.toLowerCase().includes(q)))
-    : S.rows;
+  const rows = q ? S.rows.filter(r => r.values.some(v => v.toLowerCase().includes(q))) : S.rows;
 
   document.getElementById('row-count').textContent = rows.length ? `${rows.length}/${S.rows.length}` : '';
   document.getElementById('empty-state').style.display = rows.length ? 'none' : 'flex';
 
-  const ORDER = ['Available', 'General', 'Unavailable'];
-  const grouped = {};
-  ORDER.forEach(k => grouped[k] = []);
-  rows.forEach(r => { if (grouped[r.cat]) grouped[r.cat].push(r); });
+  // Group rows
+  const grouped = Object.fromEntries(CAT_ORDER.map(k => [k, []]));
+  rows.forEach(r => { (grouped[r.cat] || grouped.Other).push(r); });
 
   const container = document.getElementById('groups-container');
   container.innerHTML = '';
 
-  ORDER.forEach(catKey => {
-    let catRows = grouped[catKey];
+  CAT_ORDER.forEach(catKey => {
+    const catRows = grouped[catKey];
     if (!catRows.length) return;
 
-    // Sort alphabetically A-Z by name (col 0)
-    catRows = [...catRows].sort((a, b) =>
-      (a.values[0]||'').localeCompare(b.values[0]||'', undefined, {sensitivity:'base'})
-    );
+    // Sort A→Z by name
+    catRows.sort((a, b) => (a.values[0]||'').localeCompare(b.values[0]||'', undefined, {sensitivity:'base'}));
 
-    const def = CAT[catKey];
+    const def    = CAT[catKey];
+    const isOpen = S.openGroups.has(catKey);
+
     const groupEl = document.createElement('div');
-    groupEl.className = 'group';
+    groupEl.className = 'group' + (isOpen ? ' open' : '');
     groupEl.dataset.key = catKey;
 
-    // Group header
+    // Header
     const hdr = document.createElement('div');
     hdr.className = 'group-header';
     hdr.innerHTML = `
       <div class="g-swatch" style="background:${def.color}"></div>
-      <div class="g-name">${xe(def.label)}</div>
+      <div class="g-name">${def.label}</div>
       <div class="g-count">${catRows.length}</div>
       <div class="g-chev">›</div>`;
-    hdr.addEventListener('click', () => groupEl.classList.toggle('open'));
+    hdr.addEventListener('click', () => {
+      const open = groupEl.classList.toggle('open');
+      open ? S.openGroups.add(catKey) : S.openGroups.delete(catKey);
+    });
     groupEl.appendChild(hdr);
 
     const body = document.createElement('div');
     body.className = 'group-body';
-
     const cardList = document.createElement('div');
     cardList.className = 'cards-list';
 
     catRows.forEach(row => {
-      const card = document.createElement('div');
+      const card    = document.createElement('div');
       card.className = 'row-card';
 
       const name    = row.values[0] || '—';
-      const bgColor = row.hex  || def.color;
+      const bgColor = row.hex   || def.color;
       const fgColor = row.fgHex || null;
 
-      // Name row — full width above the 3 fields
+      // ── Name row (not copyable — just a title)
       const nameRow = document.createElement('div');
       nameRow.className = 'card-name-row';
 
       const nameEl = document.createElement('div');
       nameEl.className = 'card-name';
-      nameEl.textContent = name;
+      nameEl.dir = 'rtl';
+      // Dot + text
+      const dot = document.createElement('span');
+      dot.className = 'cat-dot-inline';
+      dot.style.background = bgColor;
+      nameEl.appendChild(dot);
+      nameEl.appendChild(document.createTextNode(name));
       if (fgColor) nameEl.style.color = fgColor;
-      nameEl.addEventListener('click', () => copyCell(nameEl, name));
-
-      // Small bg/fg dot indicator
-      const dotEl = document.createElement('span');
-      dotEl.style.cssText = `display:inline-block;width:8px;height:8px;border-radius:50%;background:${bgColor};margin-right:7px;vertical-align:middle;position:relative;top:-1px;flex-shrink:0;`;
-
-      nameEl.prepend(dotEl);
 
       const actsEl = document.createElement('div');
       actsEl.className = 'card-acts';
-      actsEl.innerHTML = `<button class="btn sm ghost icon" title="Edit">✎</button><button class="btn sm danger icon" title="Delete">✕</button>`;
-      actsEl.querySelector('[title="Edit"]').addEventListener('click',   () => openEdit(row));
-      actsEl.querySelector('[title="Delete"]').addEventListener('click', () => openDel(row));
+      const editBtn = document.createElement('button');
+      editBtn.className = 'btn sm ghost icon'; editBtn.title = 'Edit'; editBtn.textContent = '✎';
+      editBtn.addEventListener('click', () => openEdit(row));
+      const delBtn = document.createElement('button');
+      delBtn.className = 'btn sm danger icon'; delBtn.title = 'Delete'; delBtn.textContent = '✕';
+      delBtn.addEventListener('click', () => openDel(row));
+      actsEl.appendChild(editBtn);
+      actsEl.appendChild(delBtn);
 
       nameRow.appendChild(nameEl);
       nameRow.appendChild(actsEl);
       card.appendChild(nameRow);
 
-      // 3-column fields grid (cols 1-3)
+      // ── Fields grid (cols 1–3, copyable, RTL)
       const fieldsEl = document.createElement('div');
       fieldsEl.className = 'card-fields';
       S.headers.forEach((h, i) => {
         if (i === 0) return;
-        const val = row.values[i] || '';
+        const val   = row.values[i] || '';
         const block = document.createElement('div');
         block.className = 'cf-block';
         const label = document.createElement('div');
-        label.className = 'cf-label';
-        label.textContent = h;
+        label.className = 'cf-label'; label.textContent = h;
         const valEl = document.createElement('div');
         valEl.className = 'cf-val' + (val ? '' : ' empty');
+        valEl.dir = 'rtl';
         valEl.textContent = val || '—';
         if (val) valEl.addEventListener('click', () => copyCell(valEl, val));
         block.appendChild(label);
@@ -757,15 +770,14 @@ function attachCatPicker() {
 }
 
 function openAdd() {
-  S.editRow = null;
-  S.editCat = 'General';
+  S.editRow = null; S.editCat = 'General';
   document.getElementById('modal-title').textContent = 'Add row';
   document.getElementById('modal-fields').innerHTML =
     buildCatPicker('General') +
     S.headers.map((h, i) => `
       <div class="field">
         <label>${xe(h)}</label>
-        <textarea id="f${i}" placeholder="—" autocomplete="off" rows="2"></textarea>
+        <textarea id="f${i}" placeholder="—" autocomplete="off" rows="2" dir="rtl"></textarea>
       </div>`).join('');
   attachCatPicker();
   open_('edit-overlay');
@@ -773,15 +785,14 @@ function openAdd() {
 }
 
 function openEdit(row) {
-  S.editRow = row;
-  S.editCat = row.cat;
+  S.editRow = row; S.editCat = row.cat;
   document.getElementById('modal-title').textContent = 'Edit row';
   document.getElementById('modal-fields').innerHTML =
     buildCatPicker(row.cat) +
     S.headers.map((h, i) => `
       <div class="field">
         <label>${xe(h)}</label>
-        <textarea id="f${i}" placeholder="—" autocomplete="off" rows="2">${xe(row.values[i]||'')}</textarea>
+        <textarea id="f${i}" placeholder="—" autocomplete="off" rows="2" dir="rtl">${xe(row.values[i]||'')}</textarea>
       </div>`).join('');
   attachCatPicker();
   open_('edit-overlay');
