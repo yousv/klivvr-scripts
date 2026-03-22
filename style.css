@@ -291,14 +291,22 @@ table{display:none!important}
 
 /* MOBILE */
 @media(max-width:639px){
-  #topbar{padding:0 14px;height:50px}
+  #topbar{padding:0 12px;height:50px}
   #sheet-label,.vr{display:none}
-  #toolbar{padding:8px 12px;gap:7px}
+  #toolbar{padding:7px 10px;gap:6px}
   #search-wrap{max-width:none}
-  .group-header{padding:10px 12px}
-  .name-cell{padding:8px 8px}
-  .row-acts{width:46px;padding:4px 3px}
-  .col-hdr-acts{width:46px}
-  .dc-val{font-size:11px}
-  .btn.sm{padding:4px 9px}
+  .brand-name{font-size:13px}
+  .group-header{padding:9px 10px;gap:9px}
+  .g-name{font-size:12px}
+  .g-count{font-size:9px;padding:1px 6px}
+  .col-hdr-cell{font-size:9px;padding:4px 4px;letter-spacing:.5px}
+  .col-hdr-acts{width:44px}
+  .name-cell{padding:7px 7px;min-width:0}
+  .name-cell .name-line{font-size:11px!important}
+  .data-cell{padding:6px 4px}
+  .dc-val{font-size:11px;padding:2px 3px}
+  .row-acts{width:44px;gap:2px;padding:3px}
+  .btn.icon{width:24px;height:24px;font-size:12px}
+  .row-card{max-height:96px}
+  #row-count{font-size:10px}
 }

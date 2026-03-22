@@ -4,7 +4,7 @@ const TARGET_GID = 1723849469;
 const SCOPES     = 'https://www.googleapis.com/auth/spreadsheets';
 const DISCOVERY  = 'https://sheets.googleapis.com/$discovery/rest?version=v4';
 const MAX_COLS   = 4;
-const K = { TOKEN:'ks_token', EXPIRY:'ks_expiry', GROUPS:'ks_groups', DATA:'ks_data' };
+const K = { TOKEN:'ks_token', EXPIRY:'ks_expiry', GROUPS:'ks_groups', DATA:'ks_data', SAVED:'ks_saved' };
 
 const CAT = {
   Available:   { label:'Available',   color:'#8F76D8', rgb:[143,118,216] },
@@ -73,6 +73,7 @@ function saveData() {
   localStorage.setItem(K.DATA,JSON.stringify({
     headers:S.headers,rows:S.rows,sheetName:S.sheetName,title:S.sheetTitle
   }));
+  localStorage.setItem(K.SAVED,String(Date.now()));
 }
 function loadCachedData() {
   const raw=localStorage.getItem(K.DATA);
@@ -97,8 +98,9 @@ function setWriteEnabled(v) {
 window.addEventListener('DOMContentLoaded',()=>{
   if(CLIENT_ID.startsWith('%%')) { $('error-screen').style.display='flex'; return; }
   $('main-view').style.cssText='display:flex;flex-direction:column;flex:1;overflow:hidden;';
-  if(loadCachedData()) render();
-  showLoader('Connecting…');
+  const hasCached=loadCachedData();
+  if(hasCached) render();
+  if(!hasCached) showLoader('Connecting…');
   loadScript('https://apis.google.com/js/api.js',onGapiLoad);
   loadScript('https://accounts.google.com/gsi/client',onGisLoad);
 });
@@ -136,6 +138,7 @@ function onGisLoad() {
       $('conn-dot').className='ok';
       if(wasLoggedOut&&localStorage.getItem(K.DATA)) {
         localStorage.removeItem(K.DATA);
+        localStorage.removeItem(K.SAVED);
         S.headers=[]; S.rows=[]; S.sheetName=''; S.sheetTitle='';
       }
       fetchData();
@@ -146,7 +149,6 @@ function onGisLoad() {
 
 function checkReady() {
   if(!S.gapiReady||!S.gisReady) return;
-  hideLoader();
   const t=loadToken();
   if(t) {
     gapi.client.setToken({access_token:t});
@@ -155,8 +157,10 @@ function checkReady() {
     $('btn-out').style.display='inline-flex';
     $('conn-dot').className='ok';
     scheduleRefresh(Math.floor((+localStorage.getItem(K.EXPIRY)-Date.now())/1000));
-    if(!localStorage.getItem(K.DATA)) fetchData();
+    if(!localStorage.getItem(K.DATA)) { showLoader('Loading…'); fetchData(); }
+    else hideLoader();
   } else {
+    hideLoader();
     setWriteEnabled(false);
     $('btn-auth').style.display='inline-flex';
     $('conn-dot').className='err';
@@ -360,7 +364,7 @@ function render() {
         const cell=mk('div','data-cell');
         const valEl=mk('div','dc-val'+(val?'':' empty'));
         valEl.dir='rtl'; valEl.textContent=val||'—';
-        if(val) valEl.addEventListener('click',()=>copyVal(valEl,val));
+        if(val) valEl.addEventListener('click',()=>copyVal(valEl,val,row.values[0],S.headers[ci]));
         cell.appendChild(valEl);
         dataCells.appendChild(cell);
       });
@@ -383,12 +387,12 @@ function render() {
   });
 }
 
-function copyVal(el,val) {
+function copyVal(el,val,fieldName,colHeader) {
   navigator.clipboard.writeText(val).then(()=>{
     el.classList.add('copied');
     setTimeout(()=>el.classList.remove('copied'),700);
-    const p=val.replace(/\n/g,' ');
-    toast('Copied — '+(p.length>30?p.slice(0,30)+'…':p),'copy');
+    const label = fieldName && colHeader ? `${fieldName} — ${colHeader}` : (colHeader||'');
+    toast(label,'copy');
   }).catch(()=>toast('Copy failed','err'));
 }
 
