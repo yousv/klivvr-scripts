@@ -159,7 +159,7 @@ window.addEventListener('DOMContentLoaded',async()=>{
     }
     const p = new URLSearchParams(location.search);
     if(p.has('auth_error')) {
-      toast('Sign in failed. Try again.', 'err');
+      toast('Sign in failed: ' + p.get('auth_error'), 'err');
       history.replaceState(null, '', '/');
     }
   }
