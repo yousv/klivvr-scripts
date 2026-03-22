@@ -159,7 +159,8 @@ window.addEventListener('DOMContentLoaded',async()=>{
     }
     const p = new URLSearchParams(location.search);
     if(p.has('auth_error')) {
-      toast('Sign in failed: ' + p.get('auth_error'), 'err');
+      const code = p.get('auth_error');
+      toast(code === 'unauthorized' ? 'Access denied.' : 'Sign in failed. Try again.', 'err');
       history.replaceState(null, '', '/');
     }
   }
