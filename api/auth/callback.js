@@ -16,7 +16,7 @@ module.exports = async function handler(req, res) {
     const { tokens } = await auth.getToken(code);
 
     if (!tokens.refresh_token) {
-      return res.redirect(302, '/?auth_error=no_refresh_token');
+      return res.redirect(302, '/api/auth/login?force=1');
     }
 
     setSession(res, {
@@ -26,7 +26,7 @@ module.exports = async function handler(req, res) {
     });
 
     const current = res.getHeader('Set-Cookie');
-    const clear   = 'oauth_state=; HttpOnly; Secure; SameSite=Lax; Path=/api/auth; Max-Age=0';
+    const clear = 'oauth_state=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0';
     res.setHeader('Set-Cookie', Array.isArray(current) ? [...current, clear] : [current, clear]);
 
     res.redirect(302, '/');
