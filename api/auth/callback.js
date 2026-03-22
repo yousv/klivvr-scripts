@@ -28,9 +28,13 @@ module.exports = async function handler(req, res) {
     if (!tokens.refresh_token) return res.redirect(302, '/api/auth/login');
 
     auth.setCredentials(tokens);
-    const info = await auth.getTokenInfo(tokens.access_token);
-    const allowed = (process.env.ALLOWED_EMAILS || '').split(',').map(e => e.trim().toLowerCase());
-    if (!allowed.includes(info.email.toLowerCase())) {
+
+    const idToken = tokens.id_token;
+    if (!idToken) return res.redirect(302, '/?auth_error=no_id_token');
+    const payload = JSON.parse(Buffer.from(idToken.split('.')[1], 'base64url').toString('utf8'));
+    const email   = (payload.email || '').toLowerCase();
+    const allowed = (process.env.ALLOWED_EMAILS || '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
+    if (allowed.length && !allowed.includes(email)) {
       return res.redirect(302, '/?auth_error=unauthorized');
     }
 
