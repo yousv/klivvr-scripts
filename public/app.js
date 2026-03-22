@@ -77,6 +77,7 @@ function toggleHide() {
   updateHideBtn();
   render();
 }
+function setWriteEnabled(v) {
   S.writeEnabled=v;
   ['btn-refresh','btn-add'].forEach(id=>{ const el=$(id); if(el) el.disabled=!v; });
 }
