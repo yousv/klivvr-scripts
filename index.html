@@ -10,237 +10,203 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --black:   #080808;
-  --gray9:   #111111;
-  --gray8:   #1a1a1a;
-  --gray7:   #242424;
-  --gray6:   #2e2e2e;
-  --gray5:   #3d3d3d;
-  --gray4:   #5a5a5a;
-  --gray3:   #888888;
-  --gray2:   #b8b8b8;
-  --gray1:   #e0e0e0;
-  --white:   #f5f5f5;
-  --teal:    #7ecece;
-  --teal-dim: rgba(126,206,206,.1);
-  --teal-mid: rgba(126,206,206,.18);
-  --danger:  #cc5555;
-  --success: #5aaa7a;
-  --mono:    'DM Mono', monospace;
-  --sans:    'Outfit', sans-serif;
-  --r:       8px;
+  --black:  #080808;
+  --g9:     #111111;
+  --g8:     #1a1a1a;
+  --g7:     #242424;
+  --g6:     #2e2e2e;
+  --g5:     #3d3d3d;
+  --g4:     #5a5a5a;
+  --g3:     #888888;
+  --g2:     #b8b8b8;
+  --g1:     #e0e0e0;
+  --white:  #f5f5f5;
+  --teal:   #7ecece;
+  --teal-d: rgba(126,206,206,.1);
+  --danger: #cc5555;
+  --ok:     #5aaa7a;
+  --mono:   'DM Mono', monospace;
+  --sans:   'Outfit', sans-serif;
 }
 
-html, body { height: 100%; font-family: var(--mono); font-size: 13px; color: var(--gray1); background: var(--black); -webkit-font-smoothing: antialiased; }
-
+html, body { height: 100%; font-family: var(--mono); font-size: 13px; color: var(--g1); background: var(--black); -webkit-font-smoothing: antialiased; }
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--gray6); border-radius: 99px; }
+::-webkit-scrollbar-thumb { background: var(--g6); border-radius: 99px; }
 
 #app { display: flex; flex-direction: column; height: 100dvh; overflow: hidden; }
 
-/* ── TOPBAR ─────────────────────────────────────────────── */
+/* ── TOPBAR ── */
 #topbar {
   display: flex; align-items: center; gap: 12px;
   padding: 0 20px; height: 52px; flex-shrink: 0;
-  background: var(--gray9);
-  border-bottom: 1px solid var(--gray7);
+  background: var(--g9); border-bottom: 1px solid var(--g7);
 }
-
-.brand { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-.brand-icon {
-  width: 26px; height: 26px; border-radius: 6px;
-  border: 1px solid var(--gray5);
-  display: flex; align-items: center; justify-content: center;
-}
+.brand { display: flex; align-items: center; gap: 8px; }
+.brand-icon { width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--g5); display: flex; align-items: center; justify-content: center; }
 .brand-icon svg { width: 13px; height: 13px; fill: var(--teal); }
 .brand-name { font-family: var(--sans); font-size: 14px; font-weight: 600; color: var(--white); letter-spacing: -0.2px; }
-
-.vr { width: 1px; height: 18px; background: var(--gray7); }
-
-#sheet-label {
-  font-size: 11px; color: var(--gray3);
-  max-width: 220px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
-}
-
+.vr { width: 1px; height: 18px; background: var(--g7); }
+#sheet-label { font-size: 11px; color: var(--g3); max-width: 220px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .spacer { flex: 1; }
-
-#conn-dot {
-  width: 6px; height: 6px; border-radius: 50%; background: var(--gray5);
-  transition: background .3s, box-shadow .3s; flex-shrink: 0;
-}
+#conn-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--g5); transition: background .3s, box-shadow .3s; flex-shrink: 0; }
 #conn-dot.ok  { background: var(--teal); box-shadow: 0 0 6px var(--teal); }
 #conn-dot.err { background: var(--danger); }
 
-/* ── BUTTONS ─────────────────────────────────────────────── */
+/* ── BUTTONS ── */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 5px;
-  border: 1px solid var(--gray6); border-radius: var(--r);
-  padding: 6px 14px; font-family: var(--mono); font-size: 11px; font-weight: 400;
-  background: var(--gray8); color: var(--gray2); cursor: pointer;
+  border: 1px solid var(--g6); border-radius: 8px;
+  padding: 6px 14px; font-family: var(--mono); font-size: 11px;
+  background: var(--g8); color: var(--g2); cursor: pointer;
   transition: border-color .12s, color .12s, background .12s;
   white-space: nowrap; -webkit-tap-highlight-color: transparent;
 }
-.btn:hover { border-color: var(--gray4); color: var(--white); background: var(--gray7); }
-.btn.primary {
-  background: var(--teal); border-color: var(--teal); color: var(--black);
-  font-weight: 500;
-}
+.btn:hover { border-color: var(--g4); color: var(--white); background: var(--g7); }
+.btn.primary { background: var(--teal); border-color: var(--teal); color: var(--black); font-weight: 500; }
 .btn.primary:hover { background: #9cdede; border-color: #9cdede; }
-.btn.danger { background: transparent; border-color: var(--gray6); color: var(--danger); }
+.btn.danger { background: transparent; border-color: var(--g6); color: var(--danger); }
 .btn.danger:hover { border-color: var(--danger); background: rgba(204,85,85,.07); }
-.btn.ghost { background: transparent; border-color: transparent; color: var(--gray3); }
-.btn.ghost:hover { background: var(--gray8); border-color: var(--gray6); color: var(--gray1); }
+.btn.ghost { background: transparent; border-color: transparent; color: var(--g3); }
+.btn.ghost:hover { background: var(--g8); border-color: var(--g6); color: var(--g1); }
 .btn.sm { padding: 4px 10px; font-size: 11px; border-radius: 6px; }
 .btn.icon { width: 28px; height: 28px; padding: 0; border-radius: 6px; }
 .btn:disabled { opacity: .3; cursor: not-allowed; pointer-events: none; }
 
-/* ── ERROR SCREEN ─────────────────────────────────────────── */
-#error-screen {
-  flex: 1; display: none; flex-direction: column;
-  align-items: center; justify-content: center; gap: 10px;
-  padding: 40px; text-align: center;
-}
+/* ── ERROR ── */
+#error-screen { flex: 1; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 40px; text-align: center; }
 #error-screen h2 { font-family: var(--sans); font-size: 16px; font-weight: 600; color: var(--danger); }
-#error-screen p  { color: var(--gray3); font-size: 12px; line-height: 1.8; max-width: 380px; }
-#error-screen code { color: var(--teal); background: var(--gray8); padding: 1px 6px; border-radius: 4px; }
+#error-screen p  { color: var(--g3); font-size: 12px; line-height: 1.8; max-width: 380px; }
+#error-screen code { color: var(--teal); background: var(--g8); padding: 1px 6px; border-radius: 4px; }
 
-/* ── MAIN ─────────────────────────────────────────────────── */
+/* ── MAIN ── */
 #main-view { display: none; flex-direction: column; flex: 1; overflow: hidden; }
 
-/* ── TOOLBAR ─────────────────────────────────────────────── */
+/* ── TOOLBAR ── */
 #toolbar {
   display: flex; align-items: center; gap: 8px;
   padding: 9px 16px; flex-shrink: 0;
-  background: var(--gray9); border-bottom: 1px solid var(--gray7);
+  background: var(--g9); border-bottom: 1px solid var(--g7);
 }
 #search-wrap { position: relative; flex: 1; max-width: 260px; }
 #search-wrap input {
-  width: 100%; background: var(--black); border: 1px solid var(--gray7);
-  border-radius: 6px; color: var(--gray1); font-family: var(--mono); font-size: 12px;
+  width: 100%; background: var(--black); border: 1px solid var(--g7);
+  border-radius: 6px; color: var(--g1); font-family: var(--mono); font-size: 12px;
   padding: 6px 10px 6px 30px; outline: none; transition: border-color .12s;
 }
 #search-wrap input:focus { border-color: var(--teal); }
-#search-wrap input::placeholder { color: var(--gray5); }
-.s-ico { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); color: var(--gray4); pointer-events: none; }
-#row-count { font-size: 11px; color: var(--gray4); margin-left: auto; white-space: nowrap; }
+#search-wrap input::placeholder { color: var(--g5); }
+.s-ico { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); color: var(--g4); pointer-events: none; }
+#row-count { font-size: 11px; color: var(--g4); margin-left: auto; white-space: nowrap; }
 
-/* ── LEGEND ───────────────────────────────────────────────── */
-#legend-wrap {
-  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
-  padding: 7px 16px; background: var(--black);
-  border-bottom: 1px solid var(--gray7);
-}
-#legend-wrap.empty { display: none; }
-.legend-lbl { font-size: 10px; color: var(--gray4); letter-spacing: .6px; text-transform: uppercase; margin-right: 2px; }
-.leg-chip {
-  display: inline-flex; align-items: center; gap: 5px; cursor: pointer;
-  padding: 3px 9px; border-radius: 99px; border: 1px solid var(--gray7);
-  font-size: 11px; color: var(--gray2); transition: all .12s;
-  -webkit-tap-highlight-color: transparent;
-}
-.leg-chip:hover { border-color: var(--gray5); color: var(--white); }
-.leg-chip.on { border-color: var(--teal); color: var(--teal); background: var(--teal-dim); }
-.leg-chip-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+/* ── SCROLL AREA ── */
+#scroll-area { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 0; }
 
-/* ── TABLE ────────────────────────────────────────────────── */
-#table-wrap { flex: 1; overflow: auto; -webkit-overflow-scrolling: touch; }
+/* ── GROUP / COLLAPSIBLE ── */
+.group { border-bottom: 1px solid var(--g7); }
+
+.group-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 18px; cursor: pointer;
+  background: var(--g9); position: sticky; top: 0; z-index: 5;
+  border-bottom: 1px solid var(--g7);
+  user-select: none; -webkit-tap-highlight-color: transparent;
+  transition: background .1s;
+}
+.group-header:hover { background: var(--g8); }
+
+.group-color-swatch {
+  width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0;
+}
+.group-name { font-family: var(--sans); font-size: 13px; font-weight: 600; color: var(--white); flex: 1; }
+.group-count { font-size: 11px; color: var(--g4); }
+.group-chevron { font-size: 10px; color: var(--g4); transition: transform .2s; flex-shrink: 0; }
+.group.open .group-chevron { transform: rotate(90deg); }
+
+.group-body { display: none; }
+.group.open .group-body { display: block; }
+
+/* ── TABLE ── */
 table { width: 100%; border-collapse: collapse; }
-thead { position: sticky; top: 0; z-index: 10; }
-thead tr { background: var(--gray9); }
+
 thead th {
-  padding: 9px 14px; border-bottom: 1px solid var(--gray7);
-  color: var(--gray4); font-size: 10px; font-weight: 400;
-  letter-spacing: .9px; text-transform: uppercase; text-align: left;
+  padding: 8px 16px;
+  background: var(--g8); border-bottom: 1px solid var(--g7);
+  color: var(--g4); font-size: 10px; font-weight: 400;
+  letter-spacing: .9px; text-transform: uppercase; text-align: center;
   user-select: none; cursor: pointer; transition: color .12s; white-space: nowrap;
 }
-thead th:hover { color: var(--gray2); }
+thead th:hover { color: var(--g2); }
 thead th.sorted { color: var(--teal); }
-thead th:first-child { width: 36px; text-align: right; cursor: default; }
-thead th:last-child  { width: 72px; cursor: default; }
+thead th:first-child { width: 36px; cursor: default; }
+thead th:last-child  { width: 80px; cursor: default; }
 .sa { margin-left: 3px; opacity: .3; font-size: 9px; }
 .sa.on { opacity: 1; }
 
-tbody tr {
-  border-bottom: 1px solid var(--gray8);
-  border-left: 2px solid transparent;
-  transition: background .08s;
-}
-tbody tr:hover { background: var(--gray9); }
-
-/* category left-border — teal tints only */
-tbody tr[data-cat]  { border-left-color: var(--gray6); }
-
-/* 8 unique but all monochrome-ish tints */
-tbody tr[data-cat="0"] { border-left-color: var(--teal);    background-color: var(--teal-dim); }
-tbody tr[data-cat="1"] { border-left-color: var(--gray3);   background-color: rgba(136,136,136,.04); }
-tbody tr[data-cat="2"] { border-left-color: var(--teal);    background-color: var(--teal-mid); }
-tbody tr[data-cat="3"] { border-left-color: var(--gray2);   background-color: rgba(184,184,184,.04); }
-tbody tr[data-cat="4"] { border-left-color: var(--teal);    background-color: var(--teal-dim); }
-tbody tr[data-cat="5"] { border-left-color: var(--gray4);   background-color: rgba(90,90,90,.06); }
-tbody tr[data-cat="6"] { border-left-color: var(--teal);    background-color: var(--teal-mid); }
-tbody tr[data-cat="7"] { border-left-color: var(--gray5);   background-color: rgba(61,61,61,.08); }
-tbody tr[data-cat]:hover { filter: brightness(1.25); }
+tbody tr { border-bottom: 1px solid var(--g8); transition: background .08s; }
+tbody tr:hover { background: var(--g8); }
 
 tbody td {
-  padding: 9px 14px; font-size: 12px; color: var(--gray2);
-  max-width: 320px; white-space: pre-wrap; word-break: break-word;
-  vertical-align: top;
+  padding: 10px 16px;
+  font-size: 12px; color: var(--g2);
+  white-space: pre-wrap; word-break: break-word;
+  text-align: center; vertical-align: middle;
   cursor: pointer; transition: color .1s; position: relative;
 }
-tbody td.rn { color: var(--gray5); font-size: 10px; text-align: right; padding-right: 6px; width: 36px; cursor: default; pointer-events: none; white-space: nowrap; vertical-align: middle; }
-tbody td.act { cursor: default; width: 72px; white-space: nowrap; pointer-events: none; vertical-align: middle; }
+tbody td:hover { color: var(--white); }
+tbody td.rn {
+  color: var(--g5); font-size: 10px; text-align: center;
+  width: 36px; cursor: default; pointer-events: none;
+}
+tbody td.act {
+  cursor: default; width: 80px; text-align: center;
+  pointer-events: none; white-space: nowrap; vertical-align: middle;
+}
 tbody td.act * { pointer-events: all; }
-tbody td:not(.rn):not(.act):hover { color: var(--white); }
 
 /* copy flash */
 tbody td.copied { color: var(--teal) !important; }
 tbody td.copied::after {
-  content: '✓'; position: absolute; right: 6px; top: 50%;
+  content: '✓'; position: absolute; right: 5px; top: 50%;
   transform: translateY(-50%); font-size: 10px; color: var(--teal);
-  animation: fadeOut .7s forwards;
+  animation: fo .7s forwards;
 }
-@keyframes fadeOut { 0%,60%{opacity:1} 100%{opacity:0} }
+@keyframes fo { 0%,60%{opacity:1} 100%{opacity:0} }
 
-/* col-0 dot badge */
-.cat-dot { display: inline-block; width: 5px; height: 5px; border-radius: 50%; margin-right: 7px; flex-shrink: 0; vertical-align: middle; position: relative; top: -1px; }
+/* col-0 dot */
+.cat-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 7px; vertical-align: middle; position: relative; top: -1px; flex-shrink: 0; }
 
-#empty-state { display: none; flex-direction: column; align-items: center; justify-content: center; padding: 80px 32px; gap: 8px; color: var(--gray5); }
+#empty-state { display: none; flex-direction: column; align-items: center; justify-content: center; padding: 80px 32px; gap: 8px; color: var(--g5); }
 
-/* ── MOBILE CARDS ─────────────────────────────────────────── */
+/* ── MOBILE CARDS ── */
 @media (max-width: 639px) {
-  #topbar { padding: 0 14px; gap: 10px; height: 48px; }
+  #topbar { padding: 0 14px; height: 48px; }
   #sheet-label { display: none; }
   .vr { display: none; }
   #toolbar { padding: 8px 12px; gap: 6px; }
   #search-wrap { max-width: none; }
   table { display: none; }
-  #card-list { display: flex; flex-direction: column; padding-bottom: env(safe-area-inset-bottom, 80px); }
+
+  .mobile-cards { display: flex; flex-direction: column; }
   .row-card {
-    background: var(--gray9); border-bottom: 1px solid var(--gray8);
-    border-left: 2px solid var(--gray7);
-    padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;
+    border-bottom: 1px solid var(--g8); padding: 12px 14px;
+    display: flex; flex-direction: column; gap: 8px;
   }
-  .row-card[data-cat="0"] { border-left-color: var(--teal); background-color: var(--teal-dim); }
-  .row-card[data-cat="1"] { border-left-color: var(--gray3); }
-  .row-card[data-cat="2"] { border-left-color: var(--teal); background-color: var(--teal-mid); }
-  .row-card[data-cat="3"] { border-left-color: var(--gray2); }
-  .row-card[data-cat="4"] { border-left-color: var(--teal); background-color: var(--teal-dim); }
-  .row-card[data-cat="5"] { border-left-color: var(--gray4); }
-  .row-card[data-cat="6"] { border-left-color: var(--teal); background-color: var(--teal-mid); }
-  .row-card[data-cat="7"] { border-left-color: var(--gray5); }
   .card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
   .card-name { font-family: var(--sans); font-size: 13px; font-weight: 600; color: var(--white); cursor: pointer; }
   .card-acts { display: flex; gap: 4px; flex-shrink: 0; }
   .card-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; }
-  .cf-label { font-size: 9px; color: var(--gray4); text-transform: uppercase; letter-spacing: .7px; margin-bottom: 1px; }
-  .cf-val { font-size: 12px; color: var(--gray2); white-space: pre-wrap; word-break: break-word; cursor: pointer; }
+  .cf-label { font-size: 9px; color: var(--g4); text-transform: uppercase; letter-spacing: .7px; margin-bottom: 2px; }
+  .cf-val { font-size: 12px; color: var(--g2); white-space: pre-wrap; word-break: break-word; cursor: pointer; }
   .cf-val:active { color: var(--teal); }
-  .cf-val.empty { color: var(--gray5); font-style: italic; }
+  .cf-val.empty { color: var(--g5); font-style: italic; }
 }
-@media (min-width: 640px) { #card-list { display: none; } #fab { display: none !important; } }
+@media (min-width: 640px) {
+  .mobile-cards { display: none !important; }
+  #fab { display: none !important; }
+}
 
-/* ── FAB ──────────────────────────────────────────────────── */
+/* ── FAB ── */
 #fab {
   display: flex; position: fixed;
   bottom: calc(20px + env(safe-area-inset-bottom));
@@ -248,73 +214,72 @@ tbody td.copied::after {
   background: var(--teal); border: none; cursor: pointer;
   align-items: center; justify-content: center; z-index: 50;
   font-size: 22px; color: var(--black); font-weight: 300;
-  box-shadow: 0 4px 18px rgba(126,206,206,.25);
-  transition: transform .12s, box-shadow .12s;
-  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 4px 18px rgba(126,206,206,.22);
+  transition: transform .12s; -webkit-tap-highlight-color: transparent;
 }
 #fab:active { transform: scale(.93); }
 @media (min-width: 640px) { #fab { display: none; } }
 
-/* ── LOADER ───────────────────────────────────────────────── */
+/* ── LOADER ── */
 #loader {
   position: fixed; inset: 0; background: rgba(8,8,8,.88); backdrop-filter: blur(6px);
   display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px; z-index: 200;
 }
-.spinner { width: 26px; height: 26px; border: 1.5px solid var(--gray7); border-top-color: var(--teal); border-radius: 50%; animation: spin .7s linear infinite; }
+.spinner { width: 26px; height: 26px; border: 1.5px solid var(--g7); border-top-color: var(--teal); border-radius: 50%; animation: spin .7s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-#loader p { color: var(--gray4); font-size: 12px; }
+#loader p { color: var(--g4); font-size: 12px; }
 
-/* ── MODALS ───────────────────────────────────────────────── */
+/* ── MODALS ── */
 .overlay {
-  position: fixed; inset: 0; background: rgba(8,8,8,.8); backdrop-filter: blur(4px);
+  position: fixed; inset: 0; background: rgba(8,8,8,.82); backdrop-filter: blur(4px);
   display: none; align-items: flex-end; justify-content: center; z-index: 100;
 }
 .overlay.open { display: flex; animation: fi .13s ease; }
 @keyframes fi { from{opacity:0} to{opacity:1} }
 .modal {
-  background: var(--gray9); border: 1px solid var(--gray7);
+  background: var(--g9); border: 1px solid var(--g7);
   border-radius: 14px 14px 0 0; width: 100%; max-height: 92dvh;
   overflow-y: auto; display: flex; flex-direction: column;
-  animation: slideUp .2s cubic-bezier(.22,1,.36,1);
+  animation: su .2s cubic-bezier(.22,1,.36,1);
 }
-@keyframes slideUp { from{transform:translateY(100%)} to{transform:none} }
+@keyframes su { from{transform:translateY(100%)} to{transform:none} }
 @media (min-width: 640px) {
   .overlay { align-items: center; padding: 20px; }
-  .modal { border-radius: 12px; max-width: 500px; animation: popIn .16s ease; }
+  .modal { border-radius: 12px; max-width: 500px; animation: pi .16s ease; }
   .modal.sm { max-width: 360px; }
-  @keyframes popIn { from{transform:scale(.97);opacity:0} to{transform:none;opacity:1} }
+  @keyframes pi { from{transform:scale(.97);opacity:0} to{transform:none;opacity:1} }
 }
-.drag-handle { width: 32px; height: 3px; border-radius: 99px; background: var(--gray7); margin: 10px auto 2px; flex-shrink: 0; }
+.drag-handle { width: 32px; height: 3px; border-radius: 99px; background: var(--g7); margin: 10px auto 2px; flex-shrink: 0; }
 @media (min-width: 640px) { .drag-handle { display: none; } }
-.modal-head { padding: 16px 20px 14px; border-bottom: 1px solid var(--gray8); display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.modal-head { padding: 16px 20px 14px; border-bottom: 1px solid var(--g8); display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 .modal-head h2 { font-family: var(--sans); font-size: 14px; font-weight: 600; color: var(--white); flex: 1; }
 .modal-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; }
-.modal-foot { padding: 14px 20px; padding-bottom: max(14px, env(safe-area-inset-bottom)); border-top: 1px solid var(--gray8); display: flex; gap: 8px; justify-content: flex-end; flex-shrink: 0; }
+.modal-foot { padding: 14px 20px; padding-bottom: max(14px, env(safe-area-inset-bottom)); border-top: 1px solid var(--g8); display: flex; gap: 8px; justify-content: flex-end; flex-shrink: 0; }
 .field { display: flex; flex-direction: column; gap: 5px; }
-.field label { font-size: 10px; color: var(--gray4); text-transform: uppercase; letter-spacing: .8px; }
+.field label { font-size: 10px; color: var(--g4); text-transform: uppercase; letter-spacing: .8px; }
 .field input {
-  background: var(--black); border: 1px solid var(--gray7); border-radius: 7px;
-  color: var(--gray1); font-family: var(--mono); font-size: 12px; padding: 9px 11px;
+  background: var(--black); border: 1px solid var(--g7); border-radius: 7px;
+  color: var(--g1); font-family: var(--mono); font-size: 12px; padding: 9px 11px;
   outline: none; transition: border-color .12s; width: 100%; -webkit-appearance: none;
 }
 .field input:focus { border-color: var(--teal); }
-.field input::placeholder { color: var(--gray5); }
-.confirm-msg { color: var(--gray3); font-size: 12px; line-height: 1.7; }
+.field input::placeholder { color: var(--g5); }
+.confirm-msg { color: var(--g3); font-size: 12px; line-height: 1.7; }
 
-/* ── TOASTS ───────────────────────────────────────────────── */
+/* ── TOASTS ── */
 #toasts { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 6px; z-index: 300; pointer-events: none; }
 .toast {
-  background: var(--gray8); border: 1px solid var(--gray6); border-radius: 99px;
+  background: var(--g8); border: 1px solid var(--g6); border-radius: 99px;
   padding: 7px 14px; font-size: 11px; display: flex; align-items: center; gap: 7px;
-  animation: toastIn .18s ease; box-shadow: 0 4px 16px rgba(0,0,0,.5);
-  white-space: nowrap; color: var(--gray2);
+  animation: ti .18s ease; box-shadow: 0 4px 16px rgba(0,0,0,.5);
+  white-space: nowrap; color: var(--g2);
 }
 .t-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
-.toast.ok   .t-dot { background: var(--success); }
+.toast.ok   .t-dot { background: var(--ok); }
 .toast.err  .t-dot { background: var(--danger); }
 .toast.copy .t-dot { background: var(--teal); }
-.toast.info .t-dot { background: var(--gray4); }
-@keyframes toastIn { from{transform:translateY(6px);opacity:0} to{transform:none;opacity:1} }
+.toast.info .t-dot { background: var(--g4); }
+@keyframes ti { from{transform:translateY(6px);opacity:0} to{transform:none;opacity:1} }
 </style>
 </head>
 <body>
@@ -344,31 +309,24 @@ tbody td.copied::after {
     <div id="toolbar">
       <div id="search-wrap">
         <span class="s-ico">⌕</span>
-        <input type="text" id="search" placeholder="Search…" oninput="filterRows()" autocomplete="off" spellcheck="false" />
+        <input type="text" id="search" placeholder="Search…" oninput="filterAndRender()" autocomplete="off" spellcheck="false" />
       </div>
       <button class="btn sm" onclick="loadData()" title="Refresh">↻</button>
       <button class="btn sm primary" id="toolbar-add" onclick="openAdd()">+ Add</button>
       <div id="row-count"></div>
     </div>
-
-    <div id="legend-wrap" class="empty"></div>
-
-    <div id="table-wrap">
-      <table>
-        <thead id="thead"></thead>
-        <tbody id="tbody"></tbody>
-      </table>
-      <div id="card-list"></div>
-      <div id="empty-state"><div>No rows found</div></div>
+    <div id="scroll-area">
+      <div id="groups-container"></div>
+      <div id="empty-state">No rows found</div>
     </div>
   </div>
 
 </div>
 
 <button id="fab" onclick="openAdd()">+</button>
-
 <div id="loader"><div class="spinner"></div><p id="loader-msg">Loading…</p></div>
 
+<!-- EDIT / ADD MODAL -->
 <div id="edit-overlay" class="overlay">
   <div class="modal">
     <div class="drag-handle"></div>
@@ -384,6 +342,7 @@ tbody td.copied::after {
   </div>
 </div>
 
+<!-- DELETE MODAL -->
 <div id="del-overlay" class="overlay">
   <div class="modal sm">
     <div class="drag-handle"></div>
@@ -404,49 +363,42 @@ tbody td.copied::after {
 <div id="toasts"></div>
 
 <script>
-/* ── CREDENTIALS ──────────────────────────────────────────── */
+/* ── CREDENTIALS ── */
 const CLIENT_ID  = '%%GOOGLE_CLIENT_ID%%';
 const SHEET_ID   = '%%GOOGLE_SHEET_ID%%';
 const TARGET_GID = 1723849469;
 const SCOPES     = 'https://www.googleapis.com/auth/spreadsheets';
 const DISCOVERY  = 'https://sheets.googleapis.com/$discovery/rest?version=v4';
-const HAS_AUTHED_KEY = 'ks_has_authed'; // localStorage key for remembering login
+const HAS_AUTHED = 'ks_has_authed';
 
-/* ── CATEGORY COLORS (monochrome + teal only) ─────────────── */
-const CATS = [
-  { color: '#7ecece', bg: 'rgba(126,206,206,.10)' },
-  { color: '#aaaaaa', bg: 'rgba(136,136,136,.05)'  },
-  { color: '#7ecece', bg: 'rgba(126,206,206,.18)' },
-  { color: '#cccccc', bg: 'rgba(184,184,184,.05)'  },
-  { color: '#7ecece', bg: 'rgba(126,206,206,.10)' },
-  { color: '#888888', bg: 'rgba(90,90,90,.06)'     },
-  { color: '#7ecece', bg: 'rgba(126,206,206,.18)' },
-  { color: '#666666', bg: 'rgba(61,61,61,.08)'     },
-];
-const catMap = new Map();
-let catFilter = null;
-
-/* ── STATE ────────────────────────────────────────────────── */
+/* ── STATE ── */
 const S = {
-  headers: [], rows: [], filtered: [],
-  sheetName: '', sortCol: -1, sortAsc: true,
-  editIdx: null, delIdx: null,
-  tokenClient: null, gapiReady: false, gisReady: false, authed: false,
+  headers:   [],
+  rows:      [],   // [{values: string[], colorHex: string, rowIndex: number}]
+  sheetName: '',
+  sortCol:   -1,
+  sortAsc:   true,
+  editIdx:   null,
+  delIdx:    null,
+  tokenClient: null,
+  gapiReady: false,
+  gisReady:  false,
+  authed:    false,
+  openGroups: new Set(), // tracks which group keys are open
 };
 
-/* ── BOOT ─────────────────────────────────────────────────── */
+/* ── BOOT ── */
 window.addEventListener('DOMContentLoaded', () => {
   if (CLIENT_ID.startsWith('%%') || SHEET_ID.startsWith('%%')) {
     document.getElementById('error-screen').style.display = 'flex';
     return;
   }
   const mv = document.getElementById('main-view');
-  mv.style.display = 'flex'; mv.style.flexDirection = 'column';
-  mv.style.flex = '1'; mv.style.overflow = 'hidden';
+  mv.style.cssText = 'display:flex;flex-direction:column;flex:1;overflow:hidden;';
   initAPIs();
 });
 
-/* ── GOOGLE AUTH ──────────────────────────────────────────── */
+/* ── AUTH ── */
 function initAPIs() {
   showLoader('Connecting…');
   loadScript('https://apis.google.com/js/api.js', () => {
@@ -462,17 +414,15 @@ function initAPIs() {
       callback: async (resp) => {
         if (resp.error) {
           hideLoader();
-          // If silent sign-in failed (user never authed), show Sign in button
           if (resp.error === 'interaction_required' || resp.error === 'access_denied') {
+            localStorage.removeItem(HAS_AUTHED);
             document.getElementById('btn-auth').style.display = 'inline-flex';
-            localStorage.removeItem(HAS_AUTHED_KEY);
             return;
           }
-          toast('Auth error: ' + resp.error, 'err');
-          return;
+          toast('Auth error: ' + resp.error, 'err'); return;
         }
         S.authed = true;
-        localStorage.setItem(HAS_AUTHED_KEY, '1'); // remember for next visit
+        localStorage.setItem(HAS_AUTHED, '1');
         setDot('ok');
         document.getElementById('btn-auth').style.display = 'none';
         document.getElementById('btn-out').style.display  = 'inline-flex';
@@ -493,64 +443,77 @@ function loadScript(src, cb) {
 function checkReady() {
   if (!S.gapiReady || !S.gisReady) return;
   hideLoader();
-  const hasAuthedBefore = localStorage.getItem(HAS_AUTHED_KEY) === '1';
-  if (hasAuthedBefore) {
-    // Silently try to get a token — no popup, no prompt
+  if (localStorage.getItem(HAS_AUTHED) === '1') {
     S.tokenClient.requestAccessToken({ prompt: '' });
   } else {
-    // First time — show Sign in button, wait for user
     document.getElementById('btn-auth').style.display = 'inline-flex';
   }
 }
 
 function handleAuth() {
-  // User explicitly clicked Sign in — allow consent screen if needed
   S.tokenClient.requestAccessToken({ prompt: 'none' });
-  // If that fails (no existing consent), fall back to full prompt
-  setTimeout(() => {
-    if (!S.authed) S.tokenClient.requestAccessToken({ prompt: '' });
-  }, 1500);
+  setTimeout(() => { if (!S.authed) S.tokenClient.requestAccessToken({ prompt: '' }); }, 1500);
 }
 
 function signOut() {
   const t = gapi.client.getToken();
   if (t) { google.accounts.oauth2.revoke(t.access_token); gapi.client.setToken(null); }
-  localStorage.removeItem(HAS_AUTHED_KEY); // forget the user
-  Object.assign(S, { authed: false, rows: [], headers: [], filtered: [] });
-  catMap.clear(); catFilter = null;
+  localStorage.removeItem(HAS_AUTHED);
+  Object.assign(S, { authed: false, rows: [], headers: [] });
+  S.openGroups.clear();
   setDot('');
   document.getElementById('sheet-label').textContent = '—';
   document.getElementById('btn-auth').style.display  = 'inline-flex';
   document.getElementById('btn-out').style.display   = 'none';
-  renderTable(); buildLegend();
+  document.getElementById('groups-container').innerHTML = '';
+  document.getElementById('row-count').textContent = '';
 }
 
 function setDot(cls) { document.getElementById('conn-dot').className = cls; }
 
-/* ── DATA ─────────────────────────────────────────────────── */
+/* ── DATA — uses includeGridData to get cell background colors ── */
 async function loadData() {
   if (!S.authed) return;
   showLoader('Loading…');
   try {
-    const meta   = await gapi.client.sheets.spreadsheets.get({ spreadsheetId: SHEET_ID });
-    const sheets = meta.result.sheets || [];
-    let name = sheets[0]?.properties?.title || 'Sheet1';
-    for (const sh of sheets)
-      if (sh.properties.sheetId === TARGET_GID) { name = sh.properties.title; break; }
-    S.sheetName = name;
-    document.getElementById('sheet-label').textContent =
-      `${meta.result.properties.title} / ${name}`;
-
-    const resp = await gapi.client.sheets.spreadsheets.values.get({
-      spreadsheetId: SHEET_ID, range: name,
+    // Fetch with full grid data to read cell background colors
+    const meta = await gapi.client.sheets.spreadsheets.get({
+      spreadsheetId: SHEET_ID,
+      includeGridData: true,
     });
-    const vals = resp.result.values || [];
-    S.headers  = vals[0] || [];
-    S.rows     = vals.slice(1);
-    buildCatMap();
-    S.filtered = [...S.rows];
-    applySort(); renderTable(); buildLegend();
-    toast(`${S.rows.length} rows`, 'ok');
+
+    // Find our target sheet
+    const sheetObj = meta.result.sheets.find(sh => sh.properties.sheetId === TARGET_GID)
+                  || meta.result.sheets[0];
+    S.sheetName = sheetObj.properties.title;
+    document.getElementById('sheet-label').textContent =
+      `${meta.result.properties.title} / ${S.sheetName}`;
+
+    const gridData = sheetObj.data?.[0];
+    const allRows  = gridData?.rowData || [];
+
+    if (allRows.length === 0) { S.headers = []; S.rows = []; renderGroups([]); hideLoader(); return; }
+
+    // Extract headers from row 0
+    S.headers = (allRows[0].values || []).map(c => c.formattedValue || '');
+
+    // Extract data rows with their column-0 background color
+    S.rows = [];
+    for (let ri = 1; ri < allRows.length; ri++) {
+      const rowData = allRows[ri];
+      if (!rowData) continue;
+      const cells   = rowData.values || [];
+      const values  = S.headers.map((_, ci) => (cells[ci]?.formattedValue) || '');
+      const bgColor = extractBgColor(cells[0]);
+      S.rows.push({ values, colorHex: bgColor, rowIndex: ri }); // rowIndex = 1-based sheet row offset (ri = 0-based in allRows, +1 for header = ri+1 in sheet)
+    }
+
+    // Open all groups by default
+    S.openGroups.clear();
+    getGroups(S.rows).forEach(g => S.openGroups.add(g.key));
+
+    filterAndRender();
+    toast(`${S.rows.length} rows loaded`, 'ok');
   } catch (e) {
     console.error(e);
     toast('Error: ' + (e.result?.error?.message || e.message || e), 'err');
@@ -558,230 +521,305 @@ async function loadData() {
   } finally { hideLoader(); }
 }
 
-/* ── CATEGORIES ───────────────────────────────────────────── */
-function buildCatMap() {
-  catMap.clear(); let i = 0;
-  for (const r of S.rows) {
-    const v = (r[0]||'').trim();
-    if (v && !catMap.has(v)) catMap.set(v, i++ % CATS.length);
+/* Pull background color from a cell object, return hex string */
+function extractBgColor(cell) {
+  const bg = cell?.effectiveFormat?.backgroundColor
+          || cell?.userEnteredFormat?.backgroundColor;
+  if (!bg) return '#1a1a1a'; // default — uncoloured rows
+  const r = Math.round((bg.red   || 0) * 255);
+  const g = Math.round((bg.green || 0) * 255);
+  const b = Math.round((bg.blue  || 0) * 255);
+  // Google returns white (1,1,1) for cells with no fill — treat as ungrouped
+  if (r > 250 && g > 250 && b > 250) return '#1a1a1a';
+  return '#' + [r,g,b].map(v => v.toString(16).padStart(2,'0')).join('');
+}
+
+/* ── GROUPING ── */
+function getGroups(rows) {
+  const map = new Map(); // colorHex → {rows}
+  for (const row of rows) {
+    const key = row.colorHex;
+    if (!map.has(key)) map.set(key, []);
+    map.get(key).push(row);
   }
-}
-function getCat(row) {
-  const v = (row[0]||'').trim();
-  return catMap.has(v) ? catMap.get(v) : -1;
+  // Preserve insertion order (order they appear in sheet)
+  return Array.from(map.entries()).map(([key, rows]) => ({ key, colorHex: key, rows }));
 }
 
-function buildLegend() {
-  const wrap = document.getElementById('legend-wrap');
-  if (catMap.size === 0) { wrap.classList.add('empty'); return; }
-  wrap.classList.remove('empty');
-  let html = '<span class="legend-lbl">Category</span>';
-  catMap.forEach((ci, val) => {
-    const c = CATS[ci];
-    const on = catFilter === val;
-    html += `<div class="leg-chip${on?' on':''}" onclick="toggleCat(${JSON.stringify(val)})">
-      <div class="leg-chip-dot" style="background:${c.color}"></div>${x(val)}
-    </div>`;
-  });
-  wrap.innerHTML = html;
+/* Label for a group — use the first non-empty col-0 value, or the color */
+function groupLabel(group) {
+  for (const row of group.rows) {
+    const v = (row.values[0] || '').trim();
+    if (v) return v;
+  }
+  return group.colorHex;
 }
 
-function toggleCat(val) {
-  catFilter = catFilter === val ? null : val;
-  filterRows(); buildLegend();
-}
-
-/* ── SEARCH + SORT ────────────────────────────────────────── */
-function filterRows() {
+/* ── FILTER + RENDER ── */
+function filterAndRender() {
   const q = document.getElementById('search').value.toLowerCase();
-  S.filtered = S.rows.filter(r => {
-    const matchCat = !catFilter || (r[0]||'').trim() === catFilter;
-    const matchQ   = !q || r.some(c => (c||'').toLowerCase().includes(q));
-    return matchCat && matchQ;
-  });
-  applySort(); renderTable();
+  let filtered = S.rows;
+  if (q) filtered = S.rows.filter(r => r.values.some(v => v.toLowerCase().includes(q)));
+
+  document.getElementById('row-count').textContent =
+    filtered.length ? `${filtered.length}/${S.rows.length}` : '';
+
+  const empty = document.getElementById('empty-state');
+  empty.style.display = filtered.length ? 'none' : 'flex';
+
+  renderGroups(filtered);
 }
 
+function renderGroups(rows) {
+  const container = document.getElementById('groups-container');
+  const groups    = getGroups(rows);
+
+  container.innerHTML = '';
+  groups.forEach(group => {
+    const isOpen  = S.openGroups.has(group.key);
+    const label   = groupLabel(group);
+    const isDark  = isDefaultColor(group.colorHex);
+
+    const groupEl = document.createElement('div');
+    groupEl.className = 'group' + (isOpen ? ' open' : '');
+    groupEl.dataset.key = group.key;
+
+    // header
+    const headerEl = document.createElement('div');
+    headerEl.className = 'group-header';
+    headerEl.innerHTML = `
+      <div class="group-color-swatch" style="background:${group.colorHex};${isDark?'border:1px solid #3d3d3d':''}"></div>
+      <div class="group-name">${xe(label)}</div>
+      <div class="group-count">${group.rows.length} row${group.rows.length !== 1 ? 's' : ''}</div>
+      <div class="group-chevron">›</div>`;
+    headerEl.addEventListener('click', () => toggleGroup(group.key));
+    groupEl.appendChild(headerEl);
+
+    // body
+    const bodyEl = document.createElement('div');
+    bodyEl.className = 'group-body';
+
+    // Desktop table
+    const table = document.createElement('table');
+    let thead = '<thead><tr><th>#</th>';
+    S.headers.forEach((h, i) => {
+      const on = S.sortCol === i;
+      thead += `<th data-col="${i}" class="${on?'sorted':''}">${xe(h)}<span class="sa${on?' on':''}">${on?(S.sortAsc?'↑':'↓'):'↕'}</span></th>`;
+    });
+    thead += '<th></th></tr></thead>';
+    table.innerHTML = thead;
+
+    // attach sort listeners
+    table.querySelectorAll('thead th[data-col]').forEach(th => {
+      th.style.cursor = 'pointer';
+      th.addEventListener('click', () => sortBy(parseInt(th.dataset.col)));
+    });
+
+    const tbody = document.createElement('tbody');
+    group.rows.forEach(row => {
+      const tr = document.createElement('tr');
+      // row number = rowIndex + 1 (1-based header row already accounted for in rowIndex)
+      tr.innerHTML = `<td class="rn">${row.rowIndex + 1}</td>`;
+      S.headers.forEach((_, ci) => {
+        const val = row.values[ci] || '';
+        const td  = document.createElement('td');
+        if (ci === 0 && !isDefaultColor(row.colorHex)) {
+          td.innerHTML = `<span class="cat-dot" style="background:${row.colorHex}"></span>${xe(val)}`;
+        } else {
+          td.textContent = val;
+        }
+        td.title = val;
+        td.addEventListener('click', () => copyCell(td, val));
+        tr.appendChild(td);
+      });
+      // action cell
+      const actTd = document.createElement('td');
+      actTd.className = 'act';
+      actTd.innerHTML = `
+        <button class="btn sm ghost icon" title="Edit">✎</button>
+        <button class="btn sm danger icon" title="Delete">✕</button>`;
+      actTd.querySelector('[title="Edit"]').addEventListener('click', () => openEdit(row));
+      actTd.querySelector('[title="Delete"]').addEventListener('click', () => openDel(row));
+      tr.appendChild(actTd);
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    bodyEl.appendChild(table);
+
+    // Mobile cards
+    const cards = document.createElement('div');
+    cards.className = 'mobile-cards';
+    group.rows.forEach(row => {
+      const card = document.createElement('div');
+      card.className = 'row-card';
+      const title = row.values[0] || '—';
+      let fields = '';
+      S.headers.forEach((h, i) => {
+        if (i === 0) return;
+        const val = row.values[i] || '';
+        fields += `<div>
+          <div class="cf-label">${xe(h)}</div>
+          <div class="cf-val${val?'':' empty'}" data-val="${xe(val)}">${val ? xe(val) : '—'}</div>
+        </div>`;
+      });
+      card.innerHTML = `
+        <div class="card-top">
+          <div class="card-name" data-val="${xe(title)}">${xe(title)}</div>
+          <div class="card-acts">
+            <button class="btn sm ghost icon">✎</button>
+            <button class="btn sm danger icon">✕</button>
+          </div>
+        </div>
+        <div class="card-fields">${fields}</div>`;
+      card.querySelector('.card-name').addEventListener('click', e => copyCell(e.currentTarget, title));
+      card.querySelectorAll('.cf-val').forEach(el => {
+        el.addEventListener('click', () => copyCell(el, el.dataset.val));
+      });
+      card.querySelectorAll('.card-acts .btn')[0].addEventListener('click', () => openEdit(row));
+      card.querySelectorAll('.card-acts .btn')[1].addEventListener('click', () => openDel(row));
+      cards.appendChild(card);
+    });
+    bodyEl.appendChild(cards);
+
+    groupEl.appendChild(bodyEl);
+    container.appendChild(groupEl);
+  });
+}
+
+function isDefaultColor(hex) { return hex === '#1a1a1a'; }
+
+function toggleGroup(key) {
+  const el = document.querySelector(`.group[data-key="${CSS.escape(key)}"]`);
+  if (!el) return;
+  const isOpen = el.classList.contains('open');
+  if (isOpen) { el.classList.remove('open'); S.openGroups.delete(key); }
+  else         { el.classList.add('open');    S.openGroups.add(key); }
+}
+
+/* ── SORT ── */
 function sortBy(col) {
   S.sortAsc = S.sortCol === col ? !S.sortAsc : true;
-  S.sortCol = col; applySort(); renderTable();
-}
-
-function applySort() {
-  if (S.sortCol < 0) return;
-  const c = S.sortCol;
-  S.filtered.sort((a, b) => {
-    const av = (a[c]||'').toLowerCase(), bv = (b[c]||'').toLowerCase();
+  S.sortCol = col;
+  S.rows.sort((a, b) => {
+    const av = (a.values[col]||'').toLowerCase();
+    const bv = (b.values[col]||'').toLowerCase();
     const n  = parseFloat(av) - parseFloat(bv);
     return (S.sortAsc?1:-1) * (isNaN(n) ? av.localeCompare(bv) : n);
   });
+  filterAndRender();
 }
 
-/* ── RENDER ───────────────────────────────────────────────── */
-function renderTable() {
-  const rows  = S.filtered;
-  const empty = document.getElementById('empty-state');
-  empty.style.display = rows.length ? 'none' : 'flex';
-  document.getElementById('row-count').textContent =
-    rows.length ? `${rows.length}/${S.rows.length}` : '';
-
-  // thead
-  let hh = '<tr><th>#</th>';
-  S.headers.forEach((h, i) => {
-    const on = S.sortCol === i;
-    hh += `<th onclick="sortBy(${i})" class="${on?'sorted':''}">${x(h)}<span class="sa${on?' on':''}">${on?(S.sortAsc?'↑':'↓'):'↕'}</span></th>`;
-  });
-  hh += '<th></th></tr>';
-  document.getElementById('thead').innerHTML = hh;
-
-  // tbody
-  document.getElementById('tbody').innerHTML = rows.map(row => {
-    const ri  = S.rows.indexOf(row);
-    const cat = getCat(row);
-    const catAttr = cat >= 0 ? ` data-cat="${cat}"` : '';
-    let cells = `<td class="rn">${ri+2}</td>`;
-    S.headers.forEach((_, c) => {
-      const val = row[c] || '';
-      if (c === 0 && cat >= 0) {
-        const cc = CATS[cat];
-        cells += `<td onclick="copyCell(this,${JSON.stringify(val)})" title="${x(val,true)}">
-          <span class="cat-dot" style="background:${cc.color}"></span>${x(val)}</td>`;
-      } else {
-        cells += `<td onclick="copyCell(this,${JSON.stringify(val)})" title="${x(val,true)}">${x(val)}</td>`;
-      }
-    });
-    cells += `<td class="act">
-      <button class="btn sm ghost icon" onclick="openEdit(${ri})" title="Edit">✎</button>
-      <button class="btn sm danger icon" onclick="openDel(${ri})" title="Delete">✕</button>
-    </td>`;
-    return `<tr${catAttr}>${cells}</tr>`;
-  }).join('');
-
-  // mobile cards
-  document.getElementById('card-list').innerHTML = rows.map(row => {
-    const ri  = S.rows.indexOf(row);
-    const cat = getCat(row);
-    const catAttr = cat >= 0 ? ` data-cat="${cat}"` : '';
-    const title = row[0] || '—';
-    let fields = '';
-    S.headers.forEach((h, i) => {
-      if (i === 0) return;
-      const val = row[i] || '';
-      fields += `<div><div class="cf-label">${x(h,true)}</div>
-        <div class="cf-val${val?'':' empty'}" onclick="copyCell(this,${JSON.stringify(val)})">${val?x(val):'—'}</div></div>`;
-    });
-    return `<div class="row-card"${catAttr}>
-      <div class="card-top">
-        <div class="card-name" onclick="copyCell(this,${JSON.stringify(title)})">${x(title)}</div>
-        <div class="card-acts">
-          <button class="btn sm ghost icon" onclick="openEdit(${ri})">✎</button>
-          <button class="btn sm danger icon" onclick="openDel(${ri})">✕</button>
-        </div>
-      </div>
-      <div class="card-fields">${fields}</div>
-    </div>`;
-  }).join('');
-}
-
-/* ── COPY ─────────────────────────────────────────────────── */
+/* ── COPY — safe: no JSON in HTML attributes ── */
 function copyCell(el, val) {
   if (!val) return;
   navigator.clipboard.writeText(val).then(() => {
     el.classList.add('copied');
     setTimeout(() => el.classList.remove('copied'), 700);
-    toast('Copied — ' + (val.length > 30 ? val.slice(0,30)+'…' : val), 'copy');
+    const preview = val.replace(/\n/g,' ');
+    toast('Copied — ' + (preview.length > 32 ? preview.slice(0,32)+'…' : preview), 'copy');
   }).catch(() => toast('Copy failed', 'err'));
 }
 
-/* ── ADD / EDIT ───────────────────────────────────────────── */
+/* ── ADD / EDIT ── */
 function openAdd() {
   S.editIdx = null;
   document.getElementById('modal-title').textContent = 'Add row';
-  buildFields(S.headers.map(()=>'')); open_('edit-overlay');
+  buildFields(S.headers.map(() => ''));
+  open_('edit-overlay');
 }
-function openEdit(ri) {
-  S.editIdx = ri;
+
+function openEdit(row) {
+  S.editIdx = row;
   document.getElementById('modal-title').textContent = 'Edit row';
-  buildFields(S.rows[ri]||[]); open_('edit-overlay');
+  buildFields(row.values);
+  open_('edit-overlay');
 }
+
 function buildFields(vals) {
-  document.getElementById('modal-fields').innerHTML = S.headers.map((h,i)=>
-    `<div class="field"><label>${x(h)}</label>
-     <input type="text" id="f${i}" value="${x(vals[i]||'')}" placeholder="—" autocomplete="off"/></div>`
-  ).join('');
-  setTimeout(()=>document.getElementById('modal-fields').querySelector('input')?.focus(), 100);
+  document.getElementById('modal-fields').innerHTML = S.headers.map((h, i) => `
+    <div class="field">
+      <label>${xe(h)}</label>
+      <input type="text" id="f${i}" value="${xe(vals[i]||'')}" placeholder="—" autocomplete="off" />
+    </div>`).join('');
+  setTimeout(() => document.getElementById('modal-fields').querySelector('input')?.focus(), 100);
 }
+
 async function saveRow() {
-  const vals = S.headers.map((_,i)=>document.getElementById('f'+i)?.value||'');
+  const vals = S.headers.map((_, i) => document.getElementById('f'+i)?.value || '');
   close_('edit-overlay'); showLoader('Saving…');
   try {
     if (S.editIdx === null) {
+      // Append new row
       await gapi.client.sheets.spreadsheets.values.append({
         spreadsheetId: SHEET_ID, range: S.sheetName,
         valueInputOption: 'USER_ENTERED', insertDataOption: 'INSERT_ROWS',
         resource: { values: [vals] },
       });
-      S.rows.push(vals); toast('Row added', 'ok');
+      toast('Row added', 'ok');
     } else {
+      // Update existing — rowIndex is 0-based from allRows, +1 for header, +1 for 1-based = rowIndex + 2
+      const sheetRow = S.editIdx.rowIndex + 2;
       await gapi.client.sheets.spreadsheets.values.update({
-        spreadsheetId: SHEET_ID, range: `${S.sheetName}!A${S.editIdx+2}`,
-        valueInputOption: 'USER_ENTERED', resource: { values: [vals] },
+        spreadsheetId: SHEET_ID,
+        range: `${S.sheetName}!A${sheetRow}`,
+        valueInputOption: 'USER_ENTERED',
+        resource: { values: [vals] },
       });
-      S.rows[S.editIdx] = vals; toast('Row updated', 'ok');
+      toast('Row updated', 'ok');
     }
-    buildCatMap(); filterRows(); buildLegend();
-  } catch(e) { toast('Save failed: '+(e.result?.error?.message||e.message||e),'err'); }
+    await loadData(); // reload to get fresh colors
+  } catch(e) { toast('Save failed: ' + (e.result?.error?.message || e.message || e), 'err'); }
   finally { hideLoader(); }
 }
 
-/* ── DELETE ───────────────────────────────────────────────── */
-function openDel(ri) { S.delIdx = ri; open_('del-overlay'); }
+/* ── DELETE ── */
+function openDel(row) { S.delIdx = row; open_('del-overlay'); }
+
 async function confirmDelete() {
-  const ri = S.delIdx; close_('del-overlay'); showLoader('Deleting…');
+  const row = S.delIdx;
+  close_('del-overlay'); showLoader('Deleting…');
   try {
-    const meta = await gapi.client.sheets.spreadsheets.get({ spreadsheetId: SHEET_ID });
-    const sh   = meta.result.sheets.find(s=>s.properties.title===S.sheetName);
     await gapi.client.sheets.spreadsheets.batchUpdate({
       spreadsheetId: SHEET_ID,
       resource: { requests: [{ deleteDimension: {
-        range: { sheetId: sh.properties.sheetId, dimension: 'ROWS', startIndex: ri+1, endIndex: ri+2 }
+        range: {
+          sheetId: TARGET_GID,
+          dimension: 'ROWS',
+          startIndex: row.rowIndex,      // 0-based in sheet (rowIndex 1 = second row = first data row)
+          endIndex:   row.rowIndex + 1,
+        }
       }}]},
     });
-    S.rows.splice(ri,1); buildCatMap(); filterRows(); buildLegend();
     toast('Row deleted', 'ok');
-  } catch(e) { toast('Delete failed: '+(e.result?.error?.message||e.message||e),'err'); }
+    await loadData();
+  } catch(e) { toast('Delete failed: ' + (e.result?.error?.message || e.message || e), 'err'); }
   finally { hideLoader(); }
 }
 
-/* ── UI HELPERS ───────────────────────────────────────────── */
+/* ── UI HELPERS ── */
 const open_      = id => document.getElementById(id).classList.add('open');
 const close_     = id => document.getElementById(id).classList.remove('open');
-const showLoader = msg => { document.getElementById('loader-msg').textContent = msg; document.getElementById('loader').style.display='flex'; };
-const hideLoader = ()  => document.getElementById('loader').style.display='none';
+const showLoader = msg => { document.getElementById('loader-msg').textContent = msg; document.getElementById('loader').style.display = 'flex'; };
+const hideLoader = ()  => document.getElementById('loader').style.display = 'none';
 
-function toast(msg, type='info') {
+function toast(msg, type = 'info') {
   const el = document.createElement('div');
   el.className = `toast ${type}`;
-  el.innerHTML = `<div class="t-dot"></div><span>${x(msg)}</span>`;
+  el.innerHTML = `<div class="t-dot"></div><span>${xe(msg)}</span>`;
   document.getElementById('toasts').appendChild(el);
-  setTimeout(()=>el.remove(), 2600);
+  setTimeout(() => el.remove(), 2600);
 }
-function x(s, attr = false) {
-  const esc = String(s??'')
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  // For attribute values keep it flat; for cell content preserve whitespace structure
-  if (attr) return esc;
-  return esc
-    .replace(/\r\n|\r/g, '\n')   // normalise line endings
-    .replace(/\n/g, '<br>')       // newlines → <br> (pre-wrap handles spaces)
-    ;
+
+// xe = escape for HTML attribute / text content only (never inside onclick)
+function xe(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+
 document.addEventListener('keydown', e => {
-  if (e.key==='Escape') { close_('edit-overlay'); close_('del-overlay'); }
+  if (e.key === 'Escape') { close_('edit-overlay'); close_('del-overlay'); }
 });
 document.querySelectorAll('.overlay').forEach(el =>
-  el.addEventListener('click', e => { if(e.target===el) el.classList.remove('open'); })
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); })
 );
 </script>
 </body>
