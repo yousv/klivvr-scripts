@@ -83,7 +83,7 @@ function toggleHide() {
 }
 function setWriteEnabled(v) {
   S.writeEnabled=v;
-  ['btn-refresh','btn-add'].forEach(id=>{ const el=$(id); if(el) el.disabled=!v; });
+  ['btn-add'].forEach(id=>{ const el=$(id); if(el) el.disabled=!v; });
 }
 
 function detectCat(hex) {
@@ -173,6 +173,14 @@ async function apiFetch(url,opts={}) {
 }
 
 async function fetchData() {
+  if(!S.loggedIn) {
+    localStorage.removeItem(K.DATA);
+    S.headers=[]; S.rows=[]; S.sheetName=''; S.sheetTitle='';
+    $('sheet-label').textContent='';
+    $('main-view').style.display='none';
+    $('landing').style.display='flex';
+    return;
+  }
   showLoader('Loading…');
   try {
     const data=await apiFetch('/api/data');
