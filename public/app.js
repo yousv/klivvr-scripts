@@ -121,14 +121,24 @@ function measureNameWidth(rows) {
 }
 
 window.addEventListener('DOMContentLoaded',async()=>{
-  const hasCached=loadCache();
   $('main-view').style.cssText='display:flex;flex-direction:column;flex:1;overflow:hidden;';
   updateHideBtn();
-  if(hasCached) render();
-  if(!hasCached) showLoader('Connecting…');
 
-  const { loggedIn } = await apiFetch('/api/me').catch(()=>({loggedIn:false}));
-  S.loggedIn=loggedIn;
+  const hasCached = loadCache();
+  if(hasCached) {
+    render();
+  } else {
+    showLoader('Connecting…');
+  }
+
+  let loggedIn = false;
+  try {
+    const res = await apiFetch('/api/me');
+    loggedIn = res.loggedIn;
+  } catch { loggedIn = false; }
+
+  S.loggedIn = loggedIn;
+  hideLoader();
 
   if(loggedIn) {
     $('btn-auth').style.display='none';
@@ -136,19 +146,17 @@ window.addEventListener('DOMContentLoaded',async()=>{
     $('conn-dot').className='dot ok';
     setWriteEnabled(true);
     if(!hasCached) await fetchData();
-    else hideLoader();
   } else {
-    hideLoader();
     setWriteEnabled(false);
     $('btn-auth').style.display='inline-flex';
     $('conn-dot').className='dot err';
     if(!hasCached) $('empty-state').style.display='flex';
-
-    const p=new URLSearchParams(location.search);
+    const p = new URLSearchParams(location.search);
     if(p.has('auth_error')) {
       toast('Sign in failed. Try again.', 'err');
-      history.replaceState(null,'','/');
-    }  }
+      history.replaceState(null, '', '/');
+    }
+  }
 });
 
 async function apiFetch(url,opts={}) {
