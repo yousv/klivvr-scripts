@@ -6,12 +6,13 @@ const DISCOVERY  = 'https://sheets.googleapis.com/$discovery/rest?version=v4';
 const MAX_COLS   = 4;
 const KEY_TOKEN  = 'ks_token';
 const KEY_EXPIRY = 'ks_expiry';
+const KEY_GROUPS = 'ks_groups';
 
 const CAT = {
-  Available:   { label: 'Available',   color: '#b39ddb', rgb: [147, 112, 219] },
-  General:     { label: 'General',     color: '#7ecece', rgb: [100, 181, 246] },
-  Unavailable: { label: 'Unavailable', color: '#ef9a9a', rgb: [229, 115, 115] },
-  Other:       { label: 'Other',       color: '#f0c060', rgb: [230, 160,  60] },
+  Available:   { label: 'Available',   color: '#8F76D8', rgb: [143, 118, 216] },
+  General:     { label: 'General',     color: '#63BBF4', rgb: [ 99, 187, 244] },
+  Unavailable: { label: 'Unavailable', color: '#E36C73', rgb: [227, 108, 115] },
+  Other:       { label: 'Other',       color: '#787878', rgb: [120, 120, 120] },
 };
 const CAT_ORDER = ['Available', 'General', 'Unavailable', 'Other'];
 
@@ -22,13 +23,15 @@ const S = {
   editRow:     null,
   delRow:      null,
   editCat:     'General',
-  openGroups:  new Set(),
+  openGroups:  new Set(JSON.parse(localStorage.getItem(KEY_GROUPS) || '[]')),
   tokenClient: null,
   gapiReady:   false,
   gisReady:    false,
 };
 
-// ── TOKEN
+function persistGroups() {
+  localStorage.setItem(KEY_GROUPS, JSON.stringify([...S.openGroups]));
+}
 
 function saveToken(t, exp) {
   localStorage.setItem(KEY_TOKEN,  t);
@@ -44,13 +47,8 @@ function clearToken() {
   localStorage.removeItem(KEY_EXPIRY);
 }
 
-// ── AUTH
-
 window.addEventListener('DOMContentLoaded', () => {
-  if (CLIENT_ID.startsWith('%%')) {
-    $('error-screen').style.display = 'flex';
-    return;
-  }
+  if (CLIENT_ID.startsWith('%%')) { $('error-screen').style.display = 'flex'; return; }
   $('main-view').style.cssText = 'display:flex;flex-direction:column;flex:1;overflow:hidden;';
   showLoader('Connecting…');
   loadScript('https://apis.google.com/js/api.js', onGapiLoad);
@@ -75,15 +73,9 @@ function onGapiLoad() {
 
 function onGisLoad() {
   S.tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: CLIENT_ID,
-    scope: SCOPES,
+    client_id: CLIENT_ID, scope: SCOPES,
     callback: resp => {
-      if (resp.error) {
-        hideLoader();
-        toast('Sign in failed: ' + resp.error, 'err');
-        $('btn-auth').style.display = 'inline-flex';
-        return;
-      }
+      if (resp.error) { hideLoader(); toast('Sign in failed: ' + resp.error, 'err'); $('btn-auth').style.display = 'inline-flex'; return; }
       saveToken(resp.access_token, +resp.expires_in || 3600);
       onAuthed();
     },
@@ -113,6 +105,7 @@ function signOut() {
   const t = gapi?.client?.getToken?.();
   if (t?.access_token) { google.accounts.oauth2.revoke(t.access_token, () => {}); gapi.client.setToken(null); }
   clearToken();
+  localStorage.removeItem(KEY_GROUPS);
   S.openGroups.clear();
   Object.assign(S, { headers: [], rows: [], sheetName: '' });
   $('btn-auth').style.display = 'inline-flex';
@@ -123,15 +116,12 @@ function signOut() {
   $('row-count').textContent = '';
 }
 
-// ── DATA (only called on initial load and manual refresh)
-
 async function loadData() {
   showLoader('Loading…');
   try {
     const name = S.sheetName || await resolveSheetName();
     const meta = await gapi.client.sheets.spreadsheets.get({
-      spreadsheetId: SHEET_ID,
-      includeGridData: true,
+      spreadsheetId: SHEET_ID, includeGridData: true,
       ranges: [`'${name}'!A:D`],
       fields: 'properties.title,sheets(properties,data(rowData(values(formattedValue,effectiveFormat(backgroundColor)))))',
     });
@@ -154,21 +144,14 @@ async function loadData() {
   } catch(e) {
     console.error(e);
     toast('Error: ' + (e.result?.error?.message || e.message || e), 'err');
-    if (e.status === 401) {
-      clearToken(); gapi.client.setToken(null);
-      $('btn-auth').style.display = 'inline-flex';
-      $('btn-out').style.display  = 'none';
-      $('conn-dot').className = 'err';
-    }
+    if (e.status === 401) { clearToken(); gapi.client.setToken(null); $('btn-auth').style.display = 'inline-flex'; $('btn-out').style.display = 'none'; $('conn-dot').className = 'err'; }
   } finally { hideLoader(); }
 }
 
 async function resolveSheetName() {
-  const m  = await gapi.client.sheets.spreadsheets.get({ spreadsheetId: SHEET_ID, fields: 'sheets.properties' });
+  const m = await gapi.client.sheets.spreadsheets.get({ spreadsheetId: SHEET_ID, fields: 'sheets.properties' });
   return (m.result.sheets.find(s => s.properties.sheetId === TARGET_GID) || m.result.sheets[0]).properties.title;
 }
-
-// ── COLOR
 
 function extractBgHex(cell) {
   const bg = cell?.effectiveFormat?.backgroundColor;
@@ -186,27 +169,22 @@ function detectCat(hex) {
   const g = parseInt(hex.slice(3,5), 16) / 255;
   const b = parseInt(hex.slice(5,7), 16) / 255;
   const max = Math.max(r,g,b), min = Math.min(r,g,b), d = max - min;
-  if (!d) return 'General';
   const l = (max + min) / 2;
-  const s = d / (l > 0.5 ? 2 - max - min : max + min);
-  if (s < 0.1) return 'General';
+  if (!d || d / (l > 0.5 ? 2 - max - min : max + min) < 0.1) return 'Other';
   let h = 0;
   if (max === r)      h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
   else if (max === g) h = ((b - r) / d + 2) / 6;
   else                h = ((r - g) / d + 4) / 6;
   h *= 360;
-  if (h < 20  || h >= 340) return 'Unavailable';
-  if (h >= 250 && h <  340) return 'Available';
-  if (h >= 170 && h <  250) return 'General';
+  if (h < 20 || h >= 330)          return 'Unavailable';
+  if (h >= 245 && h < 330)         return 'Available';
+  if (h >= 170 && h < 245)         return 'General';
   return 'Other';
 }
-
-// ── RENDER (pure local — no API call)
 
 function render() {
   const q = $('search').value.toLowerCase();
   const rows = q ? S.rows.filter(r => r.values.some(v => v.toLowerCase().includes(q))) : S.rows;
-
   $('row-count').textContent = rows.length ? `${rows.length}/${S.rows.length}` : '';
   $('empty-state').style.display = rows.length ? 'none' : 'flex';
 
@@ -228,24 +206,28 @@ function render() {
     group.dataset.key = key;
 
     const hdr = mk('div', 'group-header');
-    hdr.innerHTML = `<span class="g-swatch" style="background:${def.color};color:${def.color}"></span><span class="g-name">${def.label}</span><span class="g-count">${catRows.length}</span><span class="g-chev">›</span>`;
-    hdr.addEventListener('click', () => { const o = group.classList.toggle('open'); o ? S.openGroups.add(key) : S.openGroups.delete(key); });
+    hdr.innerHTML = `<span class="g-swatch" style="background:${def.color}"></span><span class="g-name">${def.label}</span><span class="g-count">${catRows.length}</span><span class="g-chev">›</span>`;
+    hdr.addEventListener('click', () => {
+      const o = group.classList.toggle('open');
+      o ? S.openGroups.add(key) : S.openGroups.delete(key);
+      persistGroups();
+    });
 
     const body = mk('div', 'group-body');
     const list = mk('div', 'cards-list');
 
     catRows.forEach((row, i) => {
       const card = mk('div', 'row-card');
-      card.style.animationDelay = `${i * 35}ms`;
+      card.style.animationDelay = `${i * 28}ms`;
 
       const nameRow = mk('div', 'card-name-row');
       const nameEl  = mk('div', 'card-name');
       nameEl.textContent = row.values[0] || '—';
-
-      const acts   = mk('div', 'card-acts');
-      const editB  = btn('ghost icon', '✎', 'Edit',   () => openEdit(row));
-      const delB   = btn('danger icon', '✕', 'Delete', () => openDel(row));
-      acts.append(editB, delB);
+      const acts = mk('div', 'card-acts');
+      acts.append(
+        btn('ghost icon', '✎', 'Edit',   () => openEdit(row)),
+        btn('danger icon', '✕', 'Delete', () => openDel(row))
+      );
       nameRow.append(nameEl, acts);
       card.appendChild(nameRow);
 
@@ -273,8 +255,6 @@ function render() {
   });
 }
 
-// ── COPY
-
 function copy(el, val) {
   navigator.clipboard.writeText(val).then(() => {
     el.classList.add('copied');
@@ -284,14 +264,12 @@ function copy(el, val) {
   }).catch(() => toast('Copy failed', 'err'));
 }
 
-// ── CATEGORY PICKER
-
 function buildPicker(selected) {
   S.editCat = selected;
   return `<div class="field"><label>Category</label><div class="cat-picker" id="cat-picker">${
     CAT_ORDER.map(k => {
       const on = k === selected;
-      return `<button type="button" class="cat-btn${on ? ' sel' : ''}" data-cat="${k}" style="${on ? `border-color:${CAT[k].color};color:${CAT[k].color};` : ''}">${CAT[k].label}</button>`;
+      return `<button type="button" class="cat-btn${on ? ' sel' : ''}" data-cat="${k}" style="${on ? `border-color:${CAT[k].color};color:${CAT[k].color}` : ''}">${CAT[k].label}</button>`;
     }).join('')
   }</div></div>`;
 }
@@ -310,8 +288,6 @@ function attachPicker() {
   );
 }
 
-// ── ADD / EDIT
-
 function fieldHtml(h, i, val = '') {
   return `<div class="field"><label>${xe(h)}</label><textarea id="f${i}" dir="rtl" rows="2" placeholder="—">${xe(val)}</textarea></div>`;
 }
@@ -319,7 +295,7 @@ function fieldHtml(h, i, val = '') {
 function openAdd() {
   S.editRow = null; S.editCat = 'General';
   $('modal-title').textContent = 'Add row';
-  $('modal-fields').innerHTML  = buildPicker('General') + S.headers.map((h, i) => fieldHtml(h, i)).join('');
+  $('modal-fields').innerHTML  = buildPicker('General') + S.headers.map(fieldHtml).join('');
   attachPicker();
   open_('edit-overlay');
   setTimeout(() => $('f0')?.focus(), 100);
@@ -340,24 +316,23 @@ async function saveRow() {
   const rgb  = CAT[cat].rgb;
   const hex  = '#' + rgb.map(v => v.toString(16).padStart(2, '0')).join('');
   close_('edit-overlay');
-  showLoader('Saving…');
   try {
     if (!S.editRow) {
-      await gapi.client.sheets.spreadsheets.values.append({
+      const res = await gapi.client.sheets.spreadsheets.values.append({
         spreadsheetId: SHEET_ID, range: S.sheetName,
         valueInputOption: 'USER_ENTERED', insertDataOption: 'INSERT_ROWS',
         resource: { values: [vals] },
       });
-      const sheetRow = S.rows.length ? Math.max(...S.rows.map(r => r.sheetRow)) + 1 : 2;
+      const updatedRange = res.result.updates?.updatedRange || '';
+      const match = updatedRange.match(/(\d+)$/);
+      const sheetRow = match ? +match[1] : (S.rows.length ? Math.max(...S.rows.map(r => r.sheetRow)) + 1 : 2);
       await setCellBg(sheetRow, rgb);
       S.rows.push({ values: vals, hex, cat, sheetRow });
       toast('Row added', 'ok');
     } else {
       await gapi.client.sheets.spreadsheets.values.update({
-        spreadsheetId: SHEET_ID,
-        range: `${S.sheetName}!A${S.editRow.sheetRow}`,
-        valueInputOption: 'USER_ENTERED',
-        resource: { values: [vals] },
+        spreadsheetId: SHEET_ID, range: `${S.sheetName}!A${S.editRow.sheetRow}`,
+        valueInputOption: 'USER_ENTERED', resource: { values: [vals] },
       });
       if (cat !== S.editRow.cat) await setCellBg(S.editRow.sheetRow, rgb);
       const idx = S.rows.indexOf(S.editRow);
@@ -366,7 +341,6 @@ async function saveRow() {
     }
     render();
   } catch(e) { toast('Save failed: ' + (e.result?.error?.message || e.message || e), 'err'); }
-  finally { hideLoader(); }
 }
 
 async function setCellBg(sheetRow, rgb) {
@@ -380,14 +354,11 @@ async function setCellBg(sheetRow, rgb) {
   });
 }
 
-// ── DELETE
-
 function openDel(row) { S.delRow = row; open_('del-overlay'); }
 
 async function confirmDelete() {
   const row = S.delRow;
   close_('del-overlay');
-  showLoader('Deleting…');
   try {
     await gapi.client.sheets.spreadsheets.batchUpdate({
       spreadsheetId: SHEET_ID,
@@ -395,21 +366,17 @@ async function confirmDelete() {
         range: { sheetId: TARGET_GID, dimension: 'ROWS', startIndex: row.sheetRow - 1, endIndex: row.sheetRow },
       }}]},
     });
-    const idx = S.rows.indexOf(row);
-    S.rows.splice(idx, 1);
+    S.rows.splice(S.rows.indexOf(row), 1);
     S.rows.forEach(r => { if (r.sheetRow > row.sheetRow) r.sheetRow--; });
     render();
     toast('Row deleted', 'ok');
   } catch(e) { toast('Delete failed: ' + (e.result?.error?.message || e.message || e), 'err'); }
-  finally { hideLoader(); }
 }
 
-// ── HELPERS
-
-const $      = id  => document.getElementById(id);
+const $      = id => document.getElementById(id);
 const mk     = (tag, cls) => { const e = document.createElement(tag); e.className = cls; return e; };
-const open_  = id  => $(id).classList.add('open');
-const close_ = id  => $(id).classList.remove('open');
+const open_  = id => $(id).classList.add('open');
+const close_ = id => $(id).classList.remove('open');
 const showLoader = msg => { $('loader-msg').textContent = msg; $('loader').style.display = 'flex'; };
 const hideLoader = ()  => $('loader').style.display = 'none';
 
@@ -428,12 +395,8 @@ function toast(msg, type = 'info') {
 }
 
 function xe(s) {
-  return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { close_('edit-overlay'); close_('del-overlay'); }
-});
-document.querySelectorAll('.overlay').forEach(ov =>
-  ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('open'); })
-);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { close_('edit-overlay'); close_('del-overlay'); } });
+document.querySelectorAll('.overlay').forEach(ov => ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('open'); }));
