@@ -17,24 +17,32 @@ module.exports = async function handler(req, res) {
 
   const { code, state, error } = req.query;
 
-  if (error)              return res.redirect(302, `/?auth_error=google:${error}`);
-  if (!code)              return res.redirect(302, '/?auth_error=no_code');
-  if (!state)             return res.redirect(302, '/?auth_error=no_state');
+  if (error)               return res.redirect(302, `/?auth_error=google:${error}`);
+  if (!code)               return res.redirect(302, '/?auth_error=no_code');
+  if (!state)              return res.redirect(302, '/?auth_error=no_state');
   if (!verifyState(state)) return res.redirect(302, '/?auth_error=invalid_state');
 
   try {
     const auth = makeOAuth2();
     const { tokens } = await auth.getToken(code);
     if (!tokens.refresh_token) return res.redirect(302, '/api/auth/login');
+
+    auth.setCredentials(tokens);
+    const info = await auth.getTokenInfo(tokens.access_token);
+    const allowed = (process.env.ALLOWED_EMAILS || '').split(',').map(e => e.trim().toLowerCase());
+    if (!allowed.includes(info.email.toLowerCase())) {
+      return res.redirect(302, '/?auth_error=unauthorized');
+    }
+
     setSession(res, {
       accessToken:  tokens.access_token,
       refreshToken: tokens.refresh_token,
       expiresAt:    tokens.expiry_date,
+      email:        info.email,
     });
     res.redirect(302, '/');
   } catch (e) {
     console.error('OAuth callback error:', e.message);
-    res.redirect(302, `/?auth_error=token`);
+    res.redirect(302, '/?auth_error=token');
   }
 };
-
