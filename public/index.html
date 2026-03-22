@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>Klivvr Scripts</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='4' fill='%23000'/><path d='M3 3h18v3H3V3zm0 5h12v3H3V8zm0 5h18v3H3v-3zm0 5h12v3H3v-3z' fill='%23fff'/></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div id="app">
+
+  <header id="topbar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h18v3H3V3zm0 5h12v3H3V8zm0 5h18v3H3v-3zm0 5h12v3H3v-3z"/></svg>
+      <span class="brand-name">Klivvr Scripts</span>
+    </div>
+    <div class="vr"></div>
+    <span id="sheet-label"></span>
+    <div class="spacer"></div>
+    <div id="conn-dot" class="dot"></div>
+    <a href="/api/auth/login" class="btn primary sm" id="btn-auth" style="display:none">Sign in with Google</a>
+    <a href="/api/auth/logout" class="btn ghost sm" id="btn-out" style="display:none">Sign out</a>
+  </header>
+
+  <div id="error-screen"><h2>Not configured</h2></div>
+
+  <main id="main-view">
+    <div id="toolbar">
+      <div id="search-wrap">
+        <span class="s-ico">⌕</span>
+        <input type="text" id="search" placeholder="Search" oninput="debouncedSearch()" autocomplete="off" spellcheck="false" />
+        <button id="search-clear" onclick="clearSearch()">✕</button>
+      </div>
+      <button class="btn ghost sm" id="btn-refresh" onclick="fetchData()">↻</button>
+      <button class="btn primary sm" id="btn-add" onclick="openAdd()">+ Add</button>
+      <span id="row-count"></span>
+    </div>
+    <div id="scroll-area">
+      <div id="groups-container"></div>
+      <div id="empty-state">No rows found</div>
+    </div>
+  </main>
+
+</div>
+
+<div id="loader"><div class="spinner"></div><p id="loader-msg">Loading…</p></div>
+
+<div id="edit-overlay" class="overlay">
+  <div class="modal">
+    <div class="drag-handle"></div>
+    <div class="modal-head">
+      <h2 id="modal-title">Row</h2>
+      <button class="btn ghost icon" onclick="close_('edit-overlay')">✕</button>
+    </div>
+    <div class="modal-body" id="modal-fields"></div>
+    <div class="modal-foot">
+      <button class="btn ghost" onclick="close_('edit-overlay')">Cancel</button>
+      <button class="btn primary" onclick="saveRow()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="del-overlay" class="overlay">
+  <div class="modal sm">
+    <div class="drag-handle"></div>
+    <div class="modal-head">
+      <h2>Delete row</h2>
+      <button class="btn ghost icon" onclick="close_('del-overlay')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="confirm-msg">This row will be permanently removed from the spreadsheet.</p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost" onclick="close_('del-overlay')">Cancel</button>
+      <button class="btn danger" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div id="toasts"></div>
+<script src="app.js"></script>
+</body>
+</html>
